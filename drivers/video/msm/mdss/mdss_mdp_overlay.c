@@ -221,6 +221,9 @@ int mdss_mdp_overlay_req_check(struct msm_fb_data_type *mfd,
 		} else if (req->flags & MDP_BWC_EN) {
 			pr_err("Decimation can't be enabled with BWC\n");
 			return -EINVAL;
+		} else if (fmt->tile) {
+			pr_err("Decimation can't be enabled with MacroTile format\n");
+			return -EINVAL;
 		}
 	}
 
