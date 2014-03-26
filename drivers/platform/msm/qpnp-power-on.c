@@ -35,6 +35,13 @@
 #define PMIC8941_V1_REV4        0x01
 #define PMIC8941_V2_REV4        0x02
 
+#define PMIC_VER_8941           0x01
+#define PMIC_VERSION_REG        0x0105
+#define PMIC_VERSION_REV4_REG   0x0103
+
+#define PMIC8941_V1_REV4        0x01
+#define PMIC8941_V2_REV4        0x02
+
 /* Common PNP defines */
 #define QPNP_PON_REVISION2(base)		(base + 0x01)
 
