@@ -857,13 +857,13 @@ void mdss_fb_update_backlight(struct msm_fb_data_type *mfd)
 	int ret = 0;
 	u32 temp;
 
+	mutex_lock(&mfd->bl_lock);
 	if (mfd->unset_bl_level && !mfd->bl_updated) {
 		pdata = dev_get_platdata(&mfd->pdev->dev);
 		if ((pdata) && (pdata->set_backlight)) {
 			
 			pr_info("%s.\n", __func__);
-			
-			mutex_lock(&mfd->bl_lock);
+
 			mfd->bl_level = mfd->unset_bl_level;
 			temp = mfd->bl_level;
 			if (mfd->mdp.ad_attenuate_bl) {
@@ -874,10 +874,10 @@ void mdss_fb_update_backlight(struct msm_fb_data_type *mfd)
 			}
 			pdata->set_backlight(pdata, temp);
 			mfd->bl_level_old = mfd->unset_bl_level;
-			mutex_unlock(&mfd->bl_lock);
 			mfd->bl_updated = 1;
 		}
 	}
+	mutex_unlock(&mfd->bl_lock);
 }
 
 static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
@@ -935,7 +935,9 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 			mfd->op_enable = false;
 			curr_pwr_state = mfd->panel_power_on;
 			mfd->panel_power_on = false;
+			mutex_lock(&mfd->bl_lock);
 			mfd->bl_updated = 0;
+			mutex_unlock(&mfd->bl_lock);
 
 			ret = mfd->mdp.off_fnc(mfd);
 			if (ret)
