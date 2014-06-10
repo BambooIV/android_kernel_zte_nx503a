@@ -454,6 +454,7 @@ static int mdss_fb_lpm_enable(struct msm_fb_data_type *mfd, int mode)
 	mutex_lock(&mfd->bl_lock);
 	bl_lvl = mfd->bl_level;
 	mdss_fb_set_backlight(mfd, 0);
+	mutex_unlock(&mfd->bl_lock);
 
 	lock_fb_info(mfd->fbi);
 	ret = mdss_fb_blank_sub(FB_BLANK_POWERDOWN, mfd->fbi,
@@ -461,7 +462,6 @@ static int mdss_fb_lpm_enable(struct msm_fb_data_type *mfd, int mode)
 	if (ret) {
 		pr_err("can't turn off display!\n");
 		unlock_fb_info(mfd->fbi);
-		mutex_unlock(&mfd->bl_lock);
 		return ret;
 	}
 
@@ -477,11 +477,11 @@ static int mdss_fb_lpm_enable(struct msm_fb_data_type *mfd, int mode)
 	if (ret) {
 		pr_err("can't turn on display!\n");
 		unlock_fb_info(mfd->fbi);
-		mutex_unlock(&mfd->bl_lock);
 		return ret;
 	}
 	unlock_fb_info(mfd->fbi);
 
+	mutex_lock(&mfd->bl_lock);
 	mfd->bl_updated = true;
 	mdss_fb_set_backlight(mfd, bl_lvl);
 	mutex_unlock(&mfd->bl_lock);
