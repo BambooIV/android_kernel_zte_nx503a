@@ -2596,6 +2596,7 @@ void mdss_mdp_footswitch_ctrl_ulps(int on, struct device *dev)
 		mdss_iommu_attach(mdata);
 		mdss_hw_init(mdata);
 		mdata->ulps = false;
+		mdss_iommu_ctrl(0);
 	} else {
 		mdata->ulps = true;
 		pm_runtime_put_sync(dev);

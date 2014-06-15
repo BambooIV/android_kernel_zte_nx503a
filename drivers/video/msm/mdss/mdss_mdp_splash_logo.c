@@ -167,6 +167,8 @@ static void mdss_mdp_splash_unmap_splash_mem(struct msm_fb_data_type *mfd)
 
 		iommu_unmap(domain, mdp5_data->splash_mem_addr,
 						mdp5_data->splash_mem_size);
+		mdss_iommu_ctrl(0);
+
 		mfd->splash_info.iommu_dynamic_attached = false;
 	}
 }
