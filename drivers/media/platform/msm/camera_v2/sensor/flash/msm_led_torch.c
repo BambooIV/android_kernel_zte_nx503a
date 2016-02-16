@@ -25,7 +25,7 @@ static void msm_led_torch_brightness_set(struct led_classdev *led_cdev,
 		pr_err("No torch trigger found, can't set brightness\n");
 		return;
 	}
-
+	printk("lonely led test\n");
 	led_trigger_event(torch_trigger, value);
 };
 

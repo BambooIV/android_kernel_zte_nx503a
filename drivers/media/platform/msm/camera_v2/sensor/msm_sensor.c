@@ -396,6 +396,30 @@ static struct msm_cam_clk_info cam_8974_clk_info[] = {
 	[SENSOR_CAM_CLK] = {"cam_clk", 0},
 };
 
+#if defined(CONFIG_IMX135_Z5S_069) ||defined(CONFIG_IMX135_Z5S) || defined(CONFIG_IMX214_APP) || defined(CONFIG_IMX135_GBAO) || defined(CONFIG_IMX135_GBAO_LC898122)
+int temp_i2c_data_type = 0 ;
+static int RegRead8byte_adaptive(uint16_t reg_addr, struct msm_sensor_ctrl_t *s_ctrl)
+{
+	uint8_t data[8];
+	int32_t rc=0;
+	enum msm_camera_i2c_reg_addr_type addr_type;
+	addr_type = s_ctrl->sensor_i2c_client->addr_type;
+	memset(data, 0x00, 8);
+	s_ctrl->sensor_i2c_client->addr_type = MSM_CAMERA_I2C_BYTE_ADDR;
+
+	rc =  s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_read_seq
+	 (
+		s_ctrl->sensor_i2c_client,
+		reg_addr, &data[0],
+		8);
+	if (rc < 0) {
+		pr_err("%s: line %d rc = %d\n", __func__, __LINE__, rc);
+	}
+	s_ctrl->sensor_i2c_client->addr_type = addr_type;
+	CDBG("sss %x %x %x %x\n", data[0],data[1],data[2],data[3]);
+	return rc;
+}
+#endif
 int msm_sensor_power_down(struct msm_sensor_ctrl_t *s_ctrl)
 {
 	struct msm_camera_power_ctrl_t *power_info;
@@ -420,7 +444,9 @@ int msm_sensor_power_down(struct msm_sensor_ctrl_t *s_ctrl)
 	return msm_camera_power_down(power_info, sensor_device_type,
 		sensor_i2c_client);
 }
-
+#ifdef CONFIG_T4K35
+extern int32_t t4k35_otp_init_setting(struct msm_sensor_ctrl_t *s_ctrl);
+#endif
 int msm_sensor_power_up(struct msm_sensor_ctrl_t *s_ctrl)
 {
 	int rc;
@@ -428,7 +454,6 @@ int msm_sensor_power_up(struct msm_sensor_ctrl_t *s_ctrl)
 	struct msm_camera_i2c_client *sensor_i2c_client;
 	struct msm_camera_slave_info *slave_info;
 	const char *sensor_name;
-
 	if (!s_ctrl) {
 		pr_err("%s:%d failed: %p\n",
 			__func__, __LINE__, s_ctrl);
@@ -452,12 +477,184 @@ int msm_sensor_power_up(struct msm_sensor_ctrl_t *s_ctrl)
 		sensor_i2c_client);
 	if (rc < 0)
 		return rc;
+	
+#if defined(CONFIG_IMX135_Z5S_069) ||defined(CONFIG_IMX135_Z5S) || defined(CONFIG_IMX214_APP) || defined(CONFIG_IMX135_GBAO) || defined(CONFIG_IMX135_GBAO_LC898122) 
+      if (!strncmp(s_ctrl->sensordata->sensor_name, "imx135_z5s", 32)) {
+		s_ctrl->sensor_i2c_client->cci_client->sid = 0x1c >> 1;
+		if (s_ctrl->sensor_device_type == MSM_CAMERA_PLATFORM_DEVICE) {
+			rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_util(
+				s_ctrl->sensor_i2c_client, MSM_CCI_INIT);
+			if (rc < 0) {
+				pr_err("%s cci_init failed\n", __func__);
+				goto power_up_failed;
+			}
+		}
+		rc = RegRead8byte_adaptive(0x02, s_ctrl);
+		if (rc < 0) {
+				pr_err("%s cci_init failed\n", __func__);
+				goto power_up_failed;
+		}
+		if (s_ctrl->sensor_device_type == MSM_CAMERA_PLATFORM_DEVICE) {
+			s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_util(
+				s_ctrl->sensor_i2c_client, MSM_CCI_RELEASE);
+		}
+		s_ctrl->sensor_i2c_client->cci_client->sid = s_ctrl->sensordata->slave_info->sensor_slave_addr >> 1;
+	}
+       if (!strncmp(s_ctrl->sensordata->sensor_name, "imx135_z5s_069", 32)) {
+		s_ctrl->sensor_i2c_client->cci_client->sid = 0x18 >> 1;
+		if (s_ctrl->sensor_device_type == MSM_CAMERA_PLATFORM_DEVICE) {
+			rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_util(
+				s_ctrl->sensor_i2c_client, MSM_CCI_INIT);
+			if (rc < 0) {
+				pr_err("%s cci_init failed\n", __func__);
+				goto power_up_failed;
+			}
+		}
+		rc = RegRead8byte_adaptive(0x94, s_ctrl);
+		if (rc < 0) {
+				pr_err("%s cci_init failed\n", __func__);
+				goto power_up_failed;
+		}
+		if (s_ctrl->sensor_device_type == MSM_CAMERA_PLATFORM_DEVICE) {
+			s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_util(
+				s_ctrl->sensor_i2c_client, MSM_CCI_RELEASE);
+		}
+		s_ctrl->sensor_i2c_client->cci_client->sid = s_ctrl->sensordata->slave_info->sensor_slave_addr >> 1;
+	}
+	if (!strncmp(s_ctrl->sensordata->sensor_name, "imx214_app", 32)) {
+		s_ctrl->sensor_i2c_client->cci_client->sid = 0x32 >> 1;
+		if (s_ctrl->sensor_device_type == MSM_CAMERA_PLATFORM_DEVICE) {
+			rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_util(
+				s_ctrl->sensor_i2c_client, MSM_CCI_INIT);
+			if (rc < 0) {
+				pr_err("%s cci_init failed\n", __func__);
+				goto power_up_failed;
+			}
+		}
+		//rc = RegRead8byte_adaptive(0x91, s_ctrl);
+		//printk("app after RegRead8byte_adaptive rc =%d\n",rc);
+		if (rc < 0) {
+				pr_err("%s cci_init failed\n", __func__);
+				goto power_up_failed;
+		}
+		if (s_ctrl->sensor_device_type == MSM_CAMERA_PLATFORM_DEVICE) {
+			s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_util(
+				s_ctrl->sensor_i2c_client, MSM_CCI_RELEASE);
+		}
+		s_ctrl->sensor_i2c_client->cci_client->sid = s_ctrl->sensordata->slave_info->sensor_slave_addr >> 1;
+	}
+	if (!strncmp(s_ctrl->sensordata->sensor_name, "imx135_gbao", 32)) {
+		s_ctrl->sensor_i2c_client->cci_client->sid = 0x1c >> 1;
+		if (s_ctrl->sensor_device_type == MSM_CAMERA_PLATFORM_DEVICE) {
+			rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_util(
+				s_ctrl->sensor_i2c_client, MSM_CCI_INIT);
+			if (rc < 0) {
+				pr_err("%s cci_init failed\n", __func__);
+				goto power_up_failed;
+			}
+		}
+		rc = RegRead8byte_adaptive(0x91, s_ctrl);
+		if (rc < 0) {
+				pr_err("%s cci_init failed\n", __func__);
+				goto power_up_failed;
+		}
+		if (s_ctrl->sensor_device_type == MSM_CAMERA_PLATFORM_DEVICE) {
+			s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_util(
+				s_ctrl->sensor_i2c_client, MSM_CCI_RELEASE);
+		}
+		s_ctrl->sensor_i2c_client->cci_client->sid = s_ctrl->sensordata->slave_info->sensor_slave_addr >> 1;
+	}
+
+	if (!strncmp(s_ctrl->sensordata->sensor_name, "imx135_gbao_lc898122", 32)) {
+	
+			  s_ctrl->sensor_i2c_client->cci_client->sid = 0x48 >> 1;
+		temp_i2c_data_type = s_ctrl->sensor_i2c_client->addr_type;
+		s_ctrl->sensor_i2c_client->addr_type = MSM_CAMERA_I2C_WORD_ADDR;
+
+		if (s_ctrl->sensor_device_type == MSM_CAMERA_PLATFORM_DEVICE) {
+			
+			rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_util(
+				s_ctrl->sensor_i2c_client, MSM_CCI_INIT);
+			if (rc < 0) {
+				pr_err("%s cci_init failed\n", __func__);
+				goto power_up_failed;
+			}
+		}
+		if (rc < 0) {
+				pr_err("%s cci_init failed\n", __func__);
+				goto power_up_failed;
+		}
+		if (s_ctrl->sensor_device_type == MSM_CAMERA_PLATFORM_DEVICE) {
+			s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_util(
+				s_ctrl->sensor_i2c_client, MSM_CCI_RELEASE);
+		}
+		
+		s_ctrl->sensor_i2c_client->cci_client->sid = s_ctrl->sensordata->slave_info->sensor_slave_addr >> 1;
+		s_ctrl->sensor_i2c_client->addr_type = temp_i2c_data_type;
+
+	}
+	if (s_ctrl->sensor_device_type == MSM_CAMERA_PLATFORM_DEVICE) {
+			rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_util(
+				s_ctrl->sensor_i2c_client, MSM_CCI_INIT);
+			if (rc < 0) {
+				pr_err("%s cci_init failed\n", __func__);
+				goto power_up_failed;
+			}
+	}
+		
+#endif
+#ifdef CONFIG_IMX214_LC898122
+ if (!strncmp(s_ctrl->sensordata->sensor_name, "imx214_lc898122", 32)) {
+		s_ctrl->sensor_i2c_client->cci_client->sid = 0xA8 >> 1;
+		gbao_temp_i2c_data_type = s_ctrl->sensor_i2c_client->addr_type;
+		s_ctrl->sensor_i2c_client->addr_type = MSM_CAMERA_I2C_BYTE_ADDR;
+		
+		if (s_ctrl->sensor_device_type == MSM_CAMERA_PLATFORM_DEVICE) {
+			rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_util(
+				s_ctrl->sensor_i2c_client, MSM_CCI_INIT);
+			if (rc < 0) {
+				pr_err("%s cci_init failed\n", __func__);
+				goto power_up_failed;
+			}
+		}
+
+		//check if it is gbao module
+		rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_read(
+			                     s_ctrl->sensor_i2c_client,0x06,
+						(uint16_t *)&gbao_module_id, MSM_CAMERA_I2C_BYTE_DATA);
+
+		printk(" gbao_module_id = 0x%x\n",gbao_module_id);
+		
+		if (gbao_module_id != 0x15) {
+				pr_err("%s cci_init failed\n", __func__);
+				goto power_up_failed;
+		}
+		if (s_ctrl->sensor_device_type == MSM_CAMERA_PLATFORM_DEVICE) {
+			s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_util(
+				s_ctrl->sensor_i2c_client, MSM_CCI_RELEASE);
+		}
+		s_ctrl->sensor_i2c_client->cci_client->sid = s_ctrl->sensordata->slave_info->sensor_slave_addr >> 1;
+		s_ctrl->sensor_i2c_client->addr_type = gbao_temp_i2c_data_type;
+	}
+ #endif
 	rc = msm_sensor_check_id(s_ctrl);
+#ifdef CONFIG_T4K35
+       if ((strcmp(sensor_name,"t4k35") == 0) && rc == 0){
+	    
+           t4k35_otp_init_setting(s_ctrl);
+	    printk("after t4k35_otp_init_setting\n");
+       }
+#endif
 	if (rc < 0)
 		msm_camera_power_down(power_info, s_ctrl->sensor_device_type,
 					sensor_i2c_client);
-
 	return rc;
+#if defined(CONFIG_IMX135_Z5S_069) ||defined(CONFIG_IMX135_Z5S) || defined(CONFIG_IMX214_APP) || defined(CONFIG_IMX135_GBAO) || defined(CONFIG_IMX135_GBAO_LC898122) || defined(CONFIG_IMX214_LC898122)|| defined(CONFIG_IMX214_OIS_SHARP)  
+	power_up_failed:	
+		msm_camera_power_down(power_info, s_ctrl->sensor_device_type,
+			sensor_i2c_client);
+	return -1;
+#endif
 }
 
 int msm_sensor_match_id(struct msm_sensor_ctrl_t *s_ctrl)
@@ -759,7 +956,6 @@ int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void __user *argp)
 			rc = -EFAULT;
 			break;
 		}
-
 		conf_array.reg_setting = reg_setting;
 		rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_write_table(
 			s_ctrl->sensor_i2c_client, &conf_array);
@@ -1033,6 +1229,116 @@ int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void __user *argp)
 		}
 		break;
 	}
+	/* ZTEMT: Jinghongliang Add for Manual AF Mode ----Start */
+	case CFG_SET_MANUAL_AF_ZTEMT: {
+			int32_t value = 0;
+			int32_t lens_position = 0;
+			uint16_t MSB = 0;
+			uint16_t LSB = 0;
+			uint16_t addr = 0;
+			uint16_t data = 0;
+			if(copy_from_user(&value,
+				(void *)cdata->cfg.setting,sizeof(int32_t))){
+				pr_err("%s:%d failed\n", __func__, __LINE__);
+				rc = -EFAULT;
+			break;
+			}else{
+				printk("<ZTEMT_CAM> Manual AF value = %d \n",value);
+				if(value < 0 || value > 79){     /* if over total steps*/
+					break;
+				}
+				
+				if(value < 5){
+					lens_position = 100+10*value;
+				}else{
+				    lens_position = 140 + 7*(value-4);
+				}
+				if(value == 79)
+					lens_position = 900;   /* push the VCM to Macro position*/
+
+	#if defined (CONFIG_IMX214) || defined(CONFIG_IMX135_GBAO) || defined(CONFIG_IMX135_GBAO_LC898122)
+                if(!strncmp(s_ctrl->sensordata->sensor_name, "imx214", 32)){
+					MSB = ( lens_position & 0x0300 ) >> 8;
+					LSB = lens_position & 0xFF;
+					lens_position = lens_position | 0xF400;
+					addr = (lens_position & 0xFF00) >> 8;
+					data = lens_position & 0xFF;
+					printk("<<<ZTEMT_JHL>>> addr = 0x%x, data = 0x%x\n",addr,data);
+				    ZtemtMoveFocus(addr,data);
+                }
+				if(!strncmp(s_ctrl->sensordata->sensor_name, "imx135_gbao", 32)){
+					enum msm_camera_i2c_reg_addr_type temp_addr_type;
+					MSB = ( lens_position & 0x0300 ) >> 8;
+					LSB = lens_position & 0xFF;
+		            s_ctrl->sensor_i2c_client->cci_client->sid = 0x1C >> 1;
+		            temp_addr_type = s_ctrl->sensor_i2c_client->addr_type;
+		            s_ctrl->sensor_i2c_client->addr_type = MSM_CAMERA_I2C_BYTE_ADDR;
+	                s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_write(
+				      s_ctrl->sensor_i2c_client, 0x03,
+				      MSB, MSM_CAMERA_I2C_BYTE_DATA);
+				    s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_write(
+				      s_ctrl->sensor_i2c_client, 0x04,
+				      LSB, MSM_CAMERA_I2C_BYTE_DATA);
+		            s_ctrl->sensor_i2c_client->cci_client->sid =
+			           s_ctrl->sensordata->slave_info->sensor_slave_addr >> 1;
+		            s_ctrl->sensor_i2c_client->addr_type = temp_addr_type;
+				}
+				if(!strncmp(s_ctrl->sensordata->sensor_name, "imx135_gbao_lc898122", 32)){
+					enum msm_camera_i2c_reg_addr_type temp_addr_type;
+					MSB = ((lens_position & 0x0700) >> 8)|0x04;
+					LSB = lens_position & 0xFF;
+		            s_ctrl->sensor_i2c_client->cci_client->sid = 0x48 >> 1;
+		            temp_addr_type = s_ctrl->sensor_i2c_client->addr_type;
+		            s_ctrl->sensor_i2c_client->addr_type = MSM_CAMERA_I2C_WORD_ADDR;
+	                s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_write(
+				      s_ctrl->sensor_i2c_client, 0x0304,
+				      MSB, MSM_CAMERA_I2C_BYTE_DATA);
+					s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_write(
+				      s_ctrl->sensor_i2c_client, 0x0305,
+				      LSB, MSM_CAMERA_I2C_BYTE_DATA);
+		            s_ctrl->sensor_i2c_client->cci_client->sid =
+			           s_ctrl->sensordata->slave_info->sensor_slave_addr >> 1;
+		            s_ctrl->sensor_i2c_client->addr_type = temp_addr_type;
+				}
+	#else
+				MSB = ( lens_position & 0x0300 ) >> 8;
+				LSB = lens_position & 0xFF;
+				lens_position = lens_position | 0xF400;
+				addr = (lens_position & 0xFF00) >> 8;
+				data = lens_position & 0xFF;
+				printk("<<<ZTEMT_JHL>>> This sensor not support Manual AF\n");
+	#endif
+			}
+		break;
+	  }
+	/* ZTEMT: Jinghongliang Add for Manual AF Mode ----End */
+	//	#ifdef CONFIG_ZTEMT_CAMERA_OIS   //ZTEMT CAMERA FOR OIS MENU ----START
+    case CFG_ENABLE_OIS: {
+		#if defined(CONFIG_IMX135_GBAO_LC898122) || defined(CONFIG_IMX135_GBAO)
+		//printk("csh enable\n");
+		if(!strncmp(s_ctrl->sensordata->sensor_name, "imx135_gbao_lc898122", 32))
+			OisEna_lc898122();
+		if(!strncmp(s_ctrl->sensordata->sensor_name, "imx135_gbao", 32)){
+			OisEna();		
+		    SetH1cMod(0xff);
+		}
+		#endif
+		break;
+	}
+
+    case CFG_DISABLE_OIS: {
+		
+     #if defined(CONFIG_IMX135_GBAO_LC898122) || defined(CONFIG_IMX135_GBAO)
+		//printk("csh disable\n");
+		if(!strncmp(s_ctrl->sensordata->sensor_name, "imx135_gbao_lc898122", 32))
+			RtnCen_lc898122(0x00);
+		if(!strncmp(s_ctrl->sensordata->sensor_name, "imx135_gbao", 32))
+			RtnCen(0x00);
+	 #endif
+		break;
+	}
+
+//	#endif                           //ZTEMT CAMERA FOR OIS MENU ----END
 	default:
 		rc = -EFAULT;
 		break;
@@ -1112,6 +1418,10 @@ static struct msm_camera_i2c_fn_t msm_sensor_cci_func_tbl = {
 		msm_camera_cci_i2c_write_table_w_microdelay,
 	.i2c_util = msm_sensor_cci_i2c_util,
 	.i2c_write_conf_tbl = msm_camera_cci_i2c_write_conf_tbl,
+#if defined(CONFIG_IMX214_APP) || defined(CONFIG_IMX135_GBAO) || defined(CONFIG_IMX135_GBAO_LC898122) || defined(CONFIG_IMX135_Z5S) || defined(CONFIG_IMX214_OIS_SHARP)|| defined(CONFIG_IMX214_LC898122)
+	.i2c_write_seq = msm_camera_cci_i2c_write_seq,
+#endif
+
 };
 
 static struct msm_camera_i2c_fn_t msm_sensor_qup_func_tbl = {
@@ -1133,7 +1443,6 @@ int32_t msm_sensor_platform_probe(struct platform_device *pdev, void *data)
 	struct msm_camera_cci_client *cci_client = NULL;
 	uint32_t session_id;
 	unsigned long mount_pos;
-
 	s_ctrl->pdev = pdev;
 	CDBG("%s called data %p\n", __func__, data);
 	CDBG("%s pdev name %s\n", __func__, pdev->id_entry->name);
@@ -1186,7 +1495,33 @@ int32_t msm_sensor_platform_probe(struct platform_device *pdev, void *data)
 		kfree(cci_client);
 		return rc;
 	}
-
+	#ifdef CONFIG_IMX214 //added for eeprom judge
+	if (!strncmp(s_ctrl->sensordata->sensor_name, "imx214", 32)) {
+		uint16_t temp_eeprom = 0;
+		enum msm_camera_i2c_reg_addr_type temp_addr_type;
+		cci_client->sid = 0xA0 >> 1;
+		temp_addr_type = s_ctrl->sensor_i2c_client->addr_type;
+		s_ctrl->sensor_i2c_client->addr_type = MSM_CAMERA_I2C_BYTE_ADDR;
+	    s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_read(
+				s_ctrl->sensor_i2c_client, 0x13,
+				&temp_eeprom, MSM_CAMERA_I2C_BYTE_DATA);
+		cci_client->sid =
+			s_ctrl->sensordata->slave_info->sensor_slave_addr >> 1;
+		s_ctrl->sensor_i2c_client->addr_type = temp_addr_type;
+		if (temp_eeprom == 0xFF) {
+			s_ctrl->sensordata->sensor_info->subdev_id[SUB_MODULE_EEPROM] = -1;
+		}
+		
+		printk("csh temp=%x\n", temp_eeprom);
+		#if 0
+		s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_read(
+				s_ctrl->sensor_i2c_client, 0x0018,
+				&temp_eeprom, MSM_CAMERA_I2C_WORD_DATA);
+		
+		printk("csh temp=%x\n", temp_eeprom);
+		#endif
+	}
+	#endif
 	CDBG("%s %s probe succeeded\n", __func__,
 		s_ctrl->sensordata->sensor_name);
 	v4l2_subdev_init(&s_ctrl->msm_sd.sd,
@@ -1212,6 +1547,11 @@ int32_t msm_sensor_platform_probe(struct platform_device *pdev, void *data)
 	s_ctrl->sensordata->sensor_info->session_id = session_id;
 	s_ctrl->msm_sd.close_seq = MSM_SD_CLOSE_2ND_CATEGORY | 0x3;
 	msm_sd_register(&s_ctrl->msm_sd);
+#if defined(CONFIG_IMX214_APP)
+	if (!strncmp(s_ctrl->sensordata->sensor_name, "imx214_app", 32)) {
+		imx214_app_update_wb_register_from_otp(s_ctrl);
+	}
+#endif
 	CDBG("%s:%d\n", __func__, __LINE__);
 
 	s_ctrl->func_tbl->sensor_power_down(s_ctrl);

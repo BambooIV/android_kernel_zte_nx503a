@@ -15,6 +15,7 @@
 #include "msm_camera_io_util.h"
 #include "msm_camera_i2c_mux.h"
 #include "msm_cci.h"
+#include "../msm_sensor.h"
 
 /*#define CONFIG_MSM_CAMERA_DT_DEBUG*/
 #undef CDBG
@@ -751,6 +752,68 @@ int msm_camera_init_gpio_pin_tbl(struct device_node *of_node,
 			gconf->gpio_num_info->gpio_num[SENSOR_GPIO_VDIG]);
 	}
 
+#ifdef CONFIG_ZTE_CAMERA_NX506J
+	if (of_property_read_bool(of_node, "qcom,gpio-dvdd") == true) {
+		rc = of_property_read_u32(of_node, "qcom,gpio-dvdd", &val);
+		if (rc < 0) {
+			pr_err("%s:%d read qcom,gpio-dvdd failed rc %d\n",
+				__func__, __LINE__, rc);
+			goto ERROR;
+		} else if (val >= gpio_array_size) {
+			pr_err("%s:%d qcom,gpio-dvdd invalid %d\n",
+				__func__, __LINE__, val);
+			goto ERROR;
+		}
+		gconf->gpio_num_info->gpio_num[SENSOR_GPIO_VIO] =
+			gpio_array[val];
+		gconf->gpio_num_info->valid[SENSOR_GPIO_VIO] = 1;
+		CDBG("%s qcom,gpio-dvdd %d\n", __func__,
+			gconf->gpio_num_info->gpio_num[SENSOR_GPIO_VIO]);
+	}
+
+#endif
+
+#if defined(CONFIG_ZTE_CAMERA_Z7)||defined(CONFIG_ZTE_CAMERA_NX504J)
+	if (of_property_read_bool(of_node, "qcom,gpio-vaf") == true) {
+		rc = of_property_read_u32(of_node, "qcom,gpio-vaf", &val);
+		if (rc < 0) {
+			pr_err("%s:%d read qcom,gpio-vaf failed rc %d\n",
+				__func__, __LINE__, rc);
+			goto ERROR;
+		} else if (val >= gpio_array_size) {
+			pr_err("%s:%d qcom,gpio-vaf invalid %d\n",
+				__func__, __LINE__, val);
+			goto ERROR;
+		}
+		gconf->gpio_num_info->gpio_num[SENSOR_GPIO_VAF] =
+			gpio_array[val];
+		gconf->gpio_num_info->valid[SENSOR_GPIO_VAF] = 1;
+
+		CDBG("%s qcom,gpio-vaf %d\n", __func__,
+			gconf->gpio_num_info->gpio_num[SENSOR_GPIO_VAF]);
+	}
+
+#endif
+#ifdef CONFIG_ZTE_CAMERA_NX504J
+if (of_property_read_bool(of_node, "qcom,gpio-vana") == true) {
+		rc = of_property_read_u32(of_node, "qcom,gpio-vana", &val);
+		if (rc < 0) {
+			pr_err("%s:%d read qcom,gpio-vana failed rc %d\n",
+				__func__, __LINE__, rc);
+			goto ERROR;
+		} else if (val >= gpio_array_size) {
+			pr_err("%s:%d qcom,gpio-vana invalid %d\n",
+				__func__, __LINE__, val);
+			goto ERROR;
+		}
+		gconf->gpio_num_info->gpio_num[SENSOR_GPIO_VANA] =
+			gpio_array[val];
+		gconf->gpio_num_info->valid[SENSOR_GPIO_VANA] = 1;
+
+		CDBG("%s qcom,gpio-vana %d\n", __func__,
+			gconf->gpio_num_info->gpio_num[SENSOR_GPIO_VANA]);
+	}
+#endif
 	if (of_property_read_bool(of_node, "qcom,gpio-reset") == true) {
 		rc = of_property_read_u32(of_node, "qcom,gpio-reset", &val);
 		if (rc < 0) {
@@ -948,14 +1011,13 @@ static int msm_camera_disable_i2c_mux(struct msm_camera_i2c_conf *i2c_conf)
 		VIDIOC_MSM_I2C_MUX_RELEASE, NULL);
 	return 0;
 }
-
+	
 int msm_camera_power_up(struct msm_camera_power_ctrl_t *ctrl,
 	enum msm_camera_device_type_t device_type,
 	struct msm_camera_i2c_client *sensor_i2c_client)
 {
 	int rc = 0, index = 0, no_gpio = 0;
 	struct msm_sensor_power_setting *power_setting = NULL;
-
 	CDBG("%s:%d\n", __func__, __LINE__);
 	if (!ctrl || !sensor_i2c_client) {
 		pr_err("failed ctrl %p sensor_i2c_client %p\n", ctrl,
@@ -1054,7 +1116,8 @@ int msm_camera_power_up(struct msm_camera_power_ctrl_t *ctrl,
 				(power_setting->delay * 1000) + 1000);
 		}
 	}
-
+#if defined(CONFIG_IMX135_Z5S_069) || defined(CONFIG_IMX135_Z5S) || defined(CONFIG_IMX214_APP) || defined(CONFIG_IMX135_GBAO) || defined(CONFIG_IMX135_GBAO_LC898122)
+#else
 	if (device_type == MSM_CAMERA_PLATFORM_DEVICE) {
 		rc = sensor_i2c_client->i2c_func_tbl->i2c_util(
 			sensor_i2c_client, MSM_CCI_INIT);
@@ -1063,16 +1126,18 @@ int msm_camera_power_up(struct msm_camera_power_ctrl_t *ctrl,
 			goto power_up_failed;
 		}
 	}
-
+#endif
 	CDBG("%s exit\n", __func__);
 	return 0;
 power_up_failed:
 	pr_err("%s:%d failed\n", __func__, __LINE__);
+#if defined(CONFIG_IMX135_Z5S_069) || defined(CONFIG_IMX135_Z5S) || defined(CONFIG_IMX214_APP) || defined(CONFIG_IMX135_GBAO) || defined(CONFIG_IMX135_GBAO_LC898122)
+#else
 	if (device_type == MSM_CAMERA_PLATFORM_DEVICE) {
 		sensor_i2c_client->i2c_func_tbl->i2c_util(
 			sensor_i2c_client, MSM_CCI_RELEASE);
 	}
-
+#endif
 	for (index--; index >= 0; index--) {
 		CDBG("%s index %d\n", __func__, index);
 		power_setting = &ctrl->power_setting[index];
@@ -1141,6 +1206,55 @@ msm_camera_get_power_settings(struct msm_camera_power_ctrl_t *ctrl,
 	}
 	return ps;
 }
+#ifdef CONFIG_IMX135_GBAO
+extern int ois_init_flag_down;
+extern void	SetH1cMod( unsigned char	UcSetNum );
+extern void RegReadA(unsigned short reg_addr, unsigned char *read_data_8);
+extern void RegWriteA(unsigned short reg_addr, unsigned char write_data_8);
+extern void RamReadA(unsigned short ram_addr, void *read_data_16);
+extern void RamWriteA(unsigned short ram_addr, unsigned short write_data_16);
+extern void RamRead32A(unsigned short ram_addr, void *read_data_32);
+extern void RamWrite32A(unsigned short ram_addr, unsigned long write_data_32);
+
+extern unsigned char RtnCen(unsigned char	UcCmdPar);
+extern void SetPanTiltMode(unsigned char UcPnTmod);
+
+extern void OisEna(void);
+extern void	IniSet( void );
+extern void	SrvCon( unsigned char	UcDirSel, unsigned char	UcSwcCon );
+extern void	S2cPro( unsigned char uc_mode );
+extern void msm_ois_init_cci(void);
+extern void msm_ois_release_cci(void);
+
+#endif
+#ifdef CONFIG_IMX135_GBAO_LC898122
+extern int ois_init_flag_down_lc898122;
+extern void read_ois_byte_data_lc898122(unsigned short reg_addr, unsigned char *read_data_8);
+extern void read_ois_word_data_lc898122(unsigned short reg_addr, uint16_t *read_data_16);
+
+extern void	SetH1cMod_lc898122( unsigned char	UcSetNum );
+extern void RegReadA_lc898122(unsigned short reg_addr, unsigned char *read_data_8);
+extern void RegWriteA_lc898122(unsigned short reg_addr, unsigned char write_data_8);
+extern void RamReadA_lc898122(unsigned short ram_addr, void *read_data_16);
+extern void RamWriteA_lc898122(unsigned short ram_addr, unsigned short write_data_16);
+extern void RamRead32A_lc898122(unsigned short ram_addr, void *read_data_32);
+extern void RamWrite32A_lc898122(unsigned short ram_addr, unsigned long write_data_32);
+
+extern unsigned char RtnCen_lc898122(unsigned char	UcCmdPar);
+extern void SetPanTiltMode_lc898122(unsigned char UcPnTmod);
+
+extern void OisEna_lc898122(void);
+extern void	IniSet_lc898122( void );
+extern void	SrvCon_lc898122( unsigned char	UcDirSel, unsigned char	UcSwcCon );
+extern void	S2cPro_lc898122( unsigned char uc_mode );
+extern void msm_ois_init_cci_lc898122(void);
+extern void msm_ois_release_cci_lc898122(void);
+
+extern void RamAccFixMod_lc898122( unsigned char UcAccMod );
+extern void IniSetAf_lc898122( void );
+extern void	SetH1cMod_lc898122( unsigned char	UcSetNum );
+
+#endif
 
 int msm_camera_power_down(struct msm_camera_power_ctrl_t *ctrl,
 	enum msm_camera_device_type_t device_type,
@@ -1149,7 +1263,6 @@ int msm_camera_power_down(struct msm_camera_power_ctrl_t *ctrl,
 	int index = 0;
 	struct msm_sensor_power_setting *pd = NULL;
 	struct msm_sensor_power_setting *ps;
-
 
 	CDBG("%s:%d\n", __func__, __LINE__);
 	if (!ctrl || !sensor_i2c_client) {
@@ -1197,8 +1310,7 @@ int msm_camera_power_down(struct msm_camera_power_ctrl_t *ctrl,
 			gpio_set_value_cansleep(
 				ctrl->gpio_conf->gpio_num_info->gpio_num
 				[pd->seq_val],
-				ctrl->gpio_conf->gpio_num_info->gpio_num
-				[pd->config_val]);
+				pd->config_val);
 			break;
 		case SENSOR_VREG:
 			if (pd->seq_val >= CAM_VREG_MAX) {
@@ -1212,11 +1324,12 @@ int msm_camera_power_down(struct msm_camera_power_ctrl_t *ctrl,
 						pd->seq_type,
 						pd->seq_val);
 
-			if (ps)
+			if (ps) {
 				msm_camera_config_single_vreg(ctrl->dev,
 					&ctrl->cam_vreg[pd->seq_val],
 					(struct regulator **)&ps->data[0],
 					0);
+			}
 			else
 				pr_err("%s error in power up/down seq data\n",
 								__func__);

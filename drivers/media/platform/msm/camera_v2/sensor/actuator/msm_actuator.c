@@ -27,6 +27,19 @@ DEFINE_MSM_MUTEX(msm_actuator_mutex);
 #define CDBG(fmt, args...) pr_debug(fmt, ##args)
 #endif
 
+/*ZTEMT: Jinghongliang Add for Read AF OTP  ---Start*/
+#if defined(CONFIG_IMX135_GBAO) || defined(CONFIG_IMX135_Z5S)
+extern unsigned short af_start_value;
+extern unsigned short af_infinity_value;
+extern unsigned short af_macro_value;
+#endif
+/*ZTEMT: Jinghongliang Add for Read AF OTP  ---End*/
+
+#ifdef CONFIG_IMX214_APP
+void RegRead8byte(uint16_t reg_addr, struct msm_actuator_ctrl_t *a_ctrl);
+int32_t Regwrite8byte(uint16_t reg_addr, unsigned long write_data1_32, \
+	unsigned long write_data2_32, struct msm_actuator_ctrl_t *a_ctrl);
+#endif
 static struct msm_actuator msm_vcm_actuator_table;
 static struct msm_actuator msm_piezo_actuator_table;
 
@@ -67,7 +80,6 @@ static int32_t msm_actuator_piezo_set_default_focus(
 	CDBG("Exit\n");
 	return rc;
 }
-
 static void msm_actuator_parse_i2c_params(struct msm_actuator_ctrl_t *a_ctrl,
 	int16_t next_lens_position, uint32_t hw_params, uint16_t delay)
 {
@@ -94,7 +106,15 @@ static void msm_actuator_parse_i2c_params(struct msm_actuator_ctrl_t *a_ctrl,
 				i2c_byte1 = write_arr[i].reg_addr;
 				i2c_byte2 = value;
 				if (size != (i+1)) {
+#if defined(CONFIG_IMX135_GBAO) || defined(CONFIG_IMX135_Z5S)
+					if (a_ctrl->i2c_client.cci_client->sid == 0x1c >> 1) {
+						i2c_byte2 = (value & 0x0300) >> 8;
+					} else {
+						i2c_byte2 = value & 0xFF;
+					}						
+#else
 					i2c_byte2 = value & 0xFF;
+#endif
 					CDBG("byte1:0x%x, byte2:0x%x\n",
 						i2c_byte1, i2c_byte2);
 					i2c_tbl[a_ctrl->i2c_tbl_index].
@@ -106,11 +126,43 @@ static void msm_actuator_parse_i2c_params(struct msm_actuator_ctrl_t *a_ctrl,
 					a_ctrl->i2c_tbl_index++;
 					i++;
 					i2c_byte1 = write_arr[i].reg_addr;
+#if defined(CONFIG_IMX135_GBAO) || defined(CONFIG_IMX135_Z5S)
+					if (a_ctrl->i2c_client.cci_client->sid == 0x1c >> 1) {
+						i2c_byte2 = value & 0xFF;
+					} else {
+						i2c_byte2 = (value & 0xFF00) >> 8;
+					}
+#else
 					i2c_byte2 = (value & 0xFF00) >> 8;
+#endif
 				}
 			} else {
+#ifdef CONFIG_IMX135_GBAO_LC898122
+			if (a_ctrl->i2c_client.cci_client->sid == 0x48 >> 1) 
+			{
+                            i2c_byte1 = ((value & 0x0700) >> 8)|0x04;
+				i2c_byte2 = value & 0xFF;
+				//printk("af i2c_byte1 = 0x%x\n",i2c_byte1);
+			       //printk("af i2c_byte2 = 0x%x\n",i2c_byte2);
+			}else{
 				i2c_byte1 = (value & 0xFF00) >> 8;
 				i2c_byte2 = value & 0xFF;
+			}
+#elif defined(CONFIG_IMX214_LC898122) || defined(CONFIG_IMX214_OIS_SHARP)
+                     if (a_ctrl->i2c_client.cci_client->sid == 0x48 >> 1) 
+			{
+                            i2c_byte1 = ((value & 0x0700) >> 8)|0x04;
+				i2c_byte2 = value & 0xFF;
+				//printk("  af i2c_byte1 = 0x%x\n",i2c_byte1);
+			       //printk("  af i2c_byte2 = 0x%x\n",i2c_byte2);
+			}else{
+				i2c_byte1 = (value & 0xFF00) >> 8;
+				i2c_byte2 = value & 0xFF;
+			}
+#else
+                            i2c_byte1 = (value & 0xFF00) >> 8;
+				i2c_byte2 = value & 0xFF;
+#endif
 			}
 		} else {
 			i2c_byte1 = write_arr[i].reg_addr;
@@ -133,7 +185,31 @@ static int32_t msm_actuator_init_focus(struct msm_actuator_ctrl_t *a_ctrl,
 	int32_t rc = -EFAULT;
 	int32_t i = 0;
 	CDBG("Enter\n");
-
+#if defined(CONFIG_IMX214_APP) || defined(CONFIG_IMX135_GBAO_LC898122)|| defined(CONFIG_IMX214_OIS_SHARP)|| defined(CONFIG_IMX214_LC898122)
+	if ((a_ctrl->i2c_client.cci_client->sid != 0x32 >> 1) && (a_ctrl->i2c_client.cci_client->sid != 0x48 >> 1)) {
+		for (i = 0; i < size; i++) {
+			switch (type) {
+			case MSM_ACTUATOR_BYTE_DATA:
+				rc = a_ctrl->i2c_client.i2c_func_tbl->i2c_write(
+					&a_ctrl->i2c_client,
+					settings[i].reg_addr,
+					settings[i].reg_data, MSM_CAMERA_I2C_BYTE_DATA);
+				break;
+			case MSM_ACTUATOR_WORD_DATA:
+				rc = a_ctrl->i2c_client.i2c_func_tbl->i2c_write(
+					&a_ctrl->i2c_client,
+					settings[i].reg_addr,
+					settings[i].reg_data, MSM_CAMERA_I2C_WORD_DATA);
+				break;
+			default:
+				pr_err("Unsupport data type: %d\n", type);
+				break;
+			}
+			if (rc < 0)
+				break;
+		}
+	}
+#else
 	for (i = 0; i < size; i++) {
 		switch (type) {
 		case MSM_ACTUATOR_BYTE_DATA:
@@ -155,7 +231,7 @@ static int32_t msm_actuator_init_focus(struct msm_actuator_ctrl_t *a_ctrl,
 		if (rc < 0)
 			break;
 	}
-
+#endif
 	a_ctrl->curr_step_pos = 0;
 	CDBG("Exit\n");
 	return rc;
@@ -190,6 +266,7 @@ static void msm_actuator_write_focus(
 	}
 
 	if (curr_lens_pos != code_boundary) {
+		//pr_err("%s[jun] positon=%d,\n",__func__,code_boundary);
 		a_ctrl->func_tbl->actuator_parse_i2c_params(a_ctrl,
 			code_boundary, damping_params->hw_params, wait_time);
 	}
@@ -253,7 +330,7 @@ static int32_t msm_actuator_move_focus(
 	int dir = move_params->dir;
 	int32_t num_steps = move_params->num_steps;
 	struct msm_camera_i2c_reg_setting reg_setting;
-
+       
 	curr_lens_pos = a_ctrl->step_position_table[a_ctrl->curr_step_pos];
 	move_params->curr_lens_pos = curr_lens_pos;
 
@@ -311,12 +388,24 @@ static int32_t msm_actuator_move_focus(
 	reg_setting.reg_setting = a_ctrl->i2c_reg_tbl;
 	reg_setting.data_type = a_ctrl->i2c_data_type;
 	reg_setting.size = a_ctrl->i2c_tbl_index;
+#if defined(CONFIG_IMX135_GBAO_LC898122) || defined(CONFIG_IMX214_APP)|| defined(CONFIG_IMX214_OIS_SHARP)|| defined(CONFIG_IMX214_LC898122)
+	if ((a_ctrl->i2c_client.cci_client->sid != 0x48 >> 1) && (a_ctrl->i2c_client.cci_client->sid != 0x32 >> 1)) {
+		rc = a_ctrl->i2c_client.i2c_func_tbl->i2c_write_table_w_microdelay(
+			&a_ctrl->i2c_client, &reg_setting);
+
+		if (rc < 0) {
+			pr_err("i2c write error:%d\n", rc);
+			return rc;
+		}
+	}
+#else
 	rc = a_ctrl->i2c_client.i2c_func_tbl->i2c_write_table_w_microdelay(
 		&a_ctrl->i2c_client, &reg_setting);
 	if (rc < 0) {
 		pr_err("i2c write error:%d\n", rc);
 		return rc;
 	}
+#endif
 	a_ctrl->i2c_tbl_index = 0;
 	CDBG("Exit\n");
 
@@ -332,6 +421,7 @@ static int32_t msm_actuator_init_step_table(struct msm_actuator_ctrl_t *a_ctrl,
 	uint16_t step_boundary = 0;
 	uint32_t max_code_size = 1;
 	uint16_t data_size = set_info->actuator_params.data_size;
+	//int16_t i;
 	CDBG("Enter\n");
 
 	for (; data_size > 0; data_size--)
@@ -347,7 +437,37 @@ static int32_t msm_actuator_init_step_table(struct msm_actuator_ctrl_t *a_ctrl,
 
 	if (a_ctrl->step_position_table == NULL)
 		return -ENOMEM;
-
+#if defined(CONFIG_IMX135_GBAO) || defined(CONFIG_IMX135_GBAO_LC898122) || defined(CONFIG_IMX135_Z5S)|| defined(CONFIG_IMX214_OIS_SHARP) 
+	if ((set_info->actuator_params.i2c_addr != 0x1c) && (set_info->actuator_params.i2c_addr != 0x48)) {
+		cur_code = set_info->af_tuning_params.initial_code;
+		a_ctrl->step_position_table[step_index++] = cur_code;
+		for (region_index = 0;
+			region_index < a_ctrl->region_size;
+			region_index++) {
+			code_per_step =
+				a_ctrl->region_params[region_index].code_per_step;
+			step_boundary =
+				a_ctrl->region_params[region_index].
+				step_bound[MOVE_NEAR];
+			for (; step_index <= step_boundary;
+				step_index++) {
+				cur_code += code_per_step;
+				if (cur_code < max_code_size)
+					a_ctrl->step_position_table[step_index] =
+						cur_code;
+				else {
+					for (; step_index <
+						set_info->af_tuning_params.total_steps;
+						step_index++)
+						a_ctrl->
+							step_position_table[
+							step_index] =
+							max_code_size;
+				}
+			}
+		}
+	}
+#else
 	cur_code = set_info->af_tuning_params.initial_code;
 	a_ctrl->step_position_table[step_index++] = cur_code;
 	for (region_index = 0;
@@ -375,6 +495,12 @@ static int32_t msm_actuator_init_step_table(struct msm_actuator_ctrl_t *a_ctrl,
 			}
 		}
 	}
+#endif
+
+	//for(i=0;i<set_info->af_tuning_params.total_steps;i++)
+	// printk("%s:jun] table[%d]=%d\n",__func__, i,a_ctrl->step_position_table[i]);
+
+	/*ZTEMT: Jinghongliang Add for Read AF OTP	---end*/
 	CDBG("Exit\n");
 	return 0;
 }
@@ -384,10 +510,25 @@ static int32_t msm_actuator_set_default_focus(
 	struct msm_actuator_move_params_t *move_params)
 {
 	int32_t rc = 0;
+	//int32_t step_boundary= a_ctrl->region_params[0].step_bound[MOVE_NEAR];
 	CDBG("Enter\n");
+	
+	#if 0  //jun add for avoid click sound when exit from camera
+	pr_err("%s[jun]Enter, step_boundary=%d,\n",__func__,step_boundary);
+	if (a_ctrl->curr_step_pos != 0) {
+		move_params->dest_step_pos = step_boundary;
+		rc = a_ctrl->func_tbl->actuator_move_focus(a_ctrl, move_params);
+		//mdelay(10);
+		move_params->dest_step_pos = 0;
+		rc = a_ctrl->func_tbl->actuator_move_focus(a_ctrl, move_params);
+		}
+	pr_err("%s[jun]Exit\n",__func__);
+	#else
 
 	if (a_ctrl->curr_step_pos != 0)
 		rc = a_ctrl->func_tbl->actuator_move_focus(a_ctrl, move_params);
+	#endif
+	
 	CDBG("Exit\n");
 	return rc;
 }
@@ -660,7 +801,7 @@ static int msm_actuator_open(struct v4l2_subdev *sd,
 	struct v4l2_subdev_fh *fh) {
 	int rc = 0;
 	struct msm_actuator_ctrl_t *a_ctrl =  v4l2_get_subdevdata(sd);
-	CDBG("Enter\n");
+	pr_err("Enter\n");
 	if (!a_ctrl) {
 		pr_err("failed\n");
 		return -EINVAL;
@@ -671,7 +812,7 @@ static int msm_actuator_open(struct v4l2_subdev *sd,
 		if (rc < 0)
 			pr_err("cci_init failed\n");
 	}
-	CDBG("Exit\n");
+	pr_err("Exit\n");
 	return rc;
 }
 
@@ -736,6 +877,19 @@ static int32_t msm_actuator_power_up(struct msm_actuator_ctrl_t *a_ctrl)
 			gpio_direction_output(a_ctrl->vcm_pwd, 1);
 		}
 	}
+	#ifdef CONFIG_IMX135_GBAO_LC898122
+	
+	if (a_ctrl->i2c_client.cci_client->sid == 0x48 >> 1) {	
+		msm_ois_init_cci_lc898122();
+	}
+	#endif
+	
+	#ifdef CONFIG_IMX214_OIS_SHARP
+	if (a_ctrl->i2c_client.cci_client->sid == 0x48 >> 1) {	
+		msm_ois_init_cci_lc898122_sharp();
+	}
+	#endif
+
 	CDBG("Exit\n");
 	return rc;
 }
@@ -768,7 +922,6 @@ static const struct i2c_device_id msm_actuator_i2c_id[] = {
 	{"qcom,actuator", (kernel_ulong_t)NULL},
 	{ }
 };
-
 static int32_t msm_actuator_i2c_probe(struct i2c_client *client,
 	const struct i2c_device_id *id)
 {
