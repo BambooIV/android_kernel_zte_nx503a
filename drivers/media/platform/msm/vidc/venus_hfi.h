@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -151,6 +151,7 @@ struct hal_data {
 };
 
 enum vidc_clocks {
+	VCODEC_NONE,
 	VCODEC_CLK,
 	VCODEC_AHB_CLK,
 	VCODEC_AXI_CLK,
@@ -215,6 +216,7 @@ struct venus_hfi_device {
 	struct workqueue_struct *venus_pm_workq;
 	int spur_count;
 	int reg_count;
+	int pc_num_cmds;
 	u32 base_addr;
 	u32 register_base;
 	u32 register_size;
