@@ -2949,7 +2949,7 @@ skip_power_off:
 
 	mutex_unlock(&device->clk_pwr_lock);
 
-	rc = venus_hfi_alloc_ocmem(device, device->ocmem_size);
+	rc = __alloc_set_ocmem(device, true);
 	if (rc) {
 		dprintk(VIDC_WARN,
 			"Failed to re-allocate OCMEM. Performance will be impacted\n");
