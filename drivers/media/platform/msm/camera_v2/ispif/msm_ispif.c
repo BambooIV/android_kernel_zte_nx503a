@@ -41,10 +41,7 @@
 #define ISPIF_INTF_CMD_DISABLE_IMMEDIATELY    0x02
 
 #define ISPIF_TIMEOUT_SLEEP_US                1000
-//#define ISPIF_TIMEOUT_ALL_US               1000000
- /* ZTEMT: zhangliang Add For SlowShutter ---Begin */
-#define ISPIF_TIMEOUT_ALL_US               1000000000
- /* ZTEMT: zhangliang Add For SlowShutter ---End */
+#define ISPIF_TIMEOUT_ALL_US               1000000
 
 #undef CDBG
 #ifdef CONFIG_MSMB_CAMERA_DEBUG

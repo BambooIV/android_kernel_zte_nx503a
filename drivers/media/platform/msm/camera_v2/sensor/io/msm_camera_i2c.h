@@ -41,13 +41,6 @@ struct msm_camera_i2c_fn_t {
 	int32_t (*i2c_write_table_w_microdelay)
 		(struct msm_camera_i2c_client *,
 		struct msm_camera_i2c_reg_setting *);
-	
-#ifdef CONFIG_IMX214_APP
-	int32_t (*z7_i2c_write_seq_microdelay)
-		(struct msm_camera_i2c_client *,
-		struct msm_camera_i2c_reg_array *, uint16_t,
-		enum msm_camera_i2c_data_type);
-#endif	
 	int32_t (*i2c_util)(struct msm_camera_i2c_client *, uint16_t);
 	int32_t (*i2c_write_conf_tbl)(struct msm_camera_i2c_client *client,
 		struct msm_camera_i2c_reg_conf *reg_conf_tbl, uint16_t size,
@@ -118,12 +111,6 @@ int32_t msm_camera_qup_i2c_write_seq_table(struct msm_camera_i2c_client *client,
 int32_t msm_camera_qup_i2c_write_table_w_microdelay(
 	struct msm_camera_i2c_client *client,
 	struct msm_camera_i2c_reg_setting *write_setting);
-#ifdef CONFIG_IMX214_APP
-int32_t z7_msm_camera_cci_i2c_write_seq_microdelay(
-	struct msm_camera_i2c_client *client,
-	struct msm_camera_i2c_reg_array *reg_tbl, uint16_t size,
-	enum msm_camera_i2c_data_type data_type);
-#endif
 
 int32_t msm_camera_qup_i2c_write_conf_tbl(
 	struct msm_camera_i2c_client *client,

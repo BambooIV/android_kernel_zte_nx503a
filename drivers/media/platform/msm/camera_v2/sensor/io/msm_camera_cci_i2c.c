@@ -282,39 +282,6 @@ int32_t msm_camera_cci_i2c_write_table_w_microdelay(
 	rc = cci_ctrl.status;
 	return rc;
 }
-#ifdef CONFIG_IMX214_APP
-int32_t z7_msm_camera_cci_i2c_write_seq_microdelay(
-	struct msm_camera_i2c_client *client,
-	struct msm_camera_i2c_reg_array *reg_tbl, uint16_t size,
-	enum msm_camera_i2c_data_type data_type)
-{
-	int i;
-	int32_t rc = -EFAULT;
-	uint8_t data[8];
-	memset(data, 0x00, 8);
-	if (!client || !reg_tbl)
-		return rc;
-
-	if ((client->addr_type != MSM_CAMERA_I2C_BYTE_ADDR
-		&& client->addr_type != MSM_CAMERA_I2C_WORD_ADDR)
-		|| (data_type != MSM_CAMERA_I2C_BYTE_DATA
-		&& data_type != MSM_CAMERA_I2C_WORD_DATA))
-		return rc;
-
-	for (i = 0; i < size; i++) {
-		data[0] = (reg_tbl->reg_data & 0xFF00) >> 8;
-		data[1] = reg_tbl->reg_data & 0xFF;
-		rc = msm_camera_cci_i2c_write_seq(client, reg_tbl->reg_addr,
-			data, 8);
-		if (rc < 0)
-			return rc;
-		if (reg_tbl->delay)
-			usleep_range(reg_tbl->delay, reg_tbl->delay + 1000);
-		reg_tbl++;
-	}
-	return rc;
-}
-#endif
 
 static int32_t msm_camera_cci_i2c_compare(struct msm_camera_i2c_client *client,
 	uint32_t addr, uint16_t data,
