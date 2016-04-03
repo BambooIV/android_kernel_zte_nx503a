@@ -1,0 +1,32 @@
+From 9130375c6cde8a0e92d97aa2199c4e7ec3c284d2 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 20:56:51 +0800
+Subject: [PATCH 29/50] nx503a: ARM: dts: msm: Change WCN PA rail LDO number
+ msm8974
+
+cherry-pick from 91caf4db1571fa3f04485b29761e87477435a739
+
+Change WCN PA rail LDO number in power manager
+entry for wcnss.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm8974.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974.dtsi b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+index 790aed5..d6ab244 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+@@ -2047,7 +2047,7 @@
+ 		gpios = <&msmgpio 36 0>, <&msmgpio 37 0>, <&msmgpio 38 0>, <&msmgpio 39 0>, <&msmgpio 40 0>;
+ 		qcom,has-48mhz-xo;
+ 		qcom,has-pronto-hw;
+-		qcom,wcnss-pm = <11 21 1200 1 1 6>;
++		qcom,wcnss-pm = <11 19 1200 1 1 6>;
+ 	};
+ 
+ 	qcom,ocmem@fdd00000 {
+-- 
+1.9.1
+

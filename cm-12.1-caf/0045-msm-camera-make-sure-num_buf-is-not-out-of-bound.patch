@@ -1,0 +1,35 @@
+From 12386166645808eec51381b8c343f47b7d9d6e4b Mon Sep 17 00:00:00 2001
+From: Yiduo Wang <yiduow@codeaurora.org>
+Date: Thu, 5 Jun 2014 17:31:16 -0700
+Subject: [PATCH 45/50] msm: camera: make sure num_buf is not out of bound
+
+V4L2 only allow 32 buffers. Check the num_buf to make sure that
+user space passed value is not out of bound.
+
+CRs-Fixed: 514698
+Change-Id: I662ec1eb998ed8bfb2a7f188e645410aa78c83b0
+Signed-off-by: Hariram Purushothaman <hpurus@codeaurora.org>
+Signed-off-by: Ankit Premrajka <ankitp@codeaurora.org>
+Signed-off-by: Raghu DP <dp.raghu@codeaurora.org>
+Signed-off-by: Yiduo Wang <yiduow@codeaurora.org>
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ drivers/media/platform/msm/camera_v2/isp/msm_buf_mgr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/media/platform/msm/camera_v2/isp/msm_buf_mgr.c b/drivers/media/platform/msm/camera_v2/isp/msm_buf_mgr.c
+index f9855c0..4e73c5a 100644
+--- a/drivers/media/platform/msm/camera_v2/isp/msm_buf_mgr.c
++++ b/drivers/media/platform/msm/camera_v2/isp/msm_buf_mgr.c
+@@ -675,7 +675,7 @@ static int msm_isp_request_bufq(struct msm_isp_buf_mgr *buf_mgr,
+ 	struct msm_isp_bufq *bufq = NULL;
+ 	CDBG("%s: E\n", __func__);
+ 
+-	if (!buf_request->num_buf) {
++	if (!buf_request->num_buf || buf_request->num_buf > VIDEO_MAX_FRAME) {
+ 		pr_err("Invalid buffer request\n");
+ 		return rc;
+ 	}
+-- 
+1.9.1
+

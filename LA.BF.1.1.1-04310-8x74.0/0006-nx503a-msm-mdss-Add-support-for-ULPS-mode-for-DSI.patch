@@ -1,0 +1,60 @@
+From 50315d05d0da374fdd48ad3b571333edc218df79 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 15 Mar 2016 11:56:50 +0800
+Subject: [PATCH 06/36] nx503a: msm: mdss: Add support for ULPS mode for DSI
+
+cherry-pick from bad560c1ec1b1c65420dd8ac299e5b41fe493f75
+
+For smart panels that can refresh display from their internal
+RAMs, it is possible to configure the DSI clock and data lanes
+in Ultra Low Power State (ULPS) during idle static screen
+usecase. Add support for this feature.
+---
+ arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi  | 8 ++++++--
+ arch/arm/mach-msm/board/clock-8974-NX503A.c | 4 ++++
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi b/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
+index 7558dfc..a35ad91 100644
+--- a/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
+@@ -122,7 +122,9 @@
+ 		compatible = "qcom,mdss-dsi-ctrl";
+ 		label = "MDSS DSI CTRL->0";
+ 		cell-index = <0>;
+-		reg = <0xfd922800 0x600>;
++		reg = 	<0xfd922800 0x600>,
++			<0xfdf30000 0x108>;
++		reg-names = "dsi_phys", "mmss_misc_phys";
+ 		vdd-supply = <&pm8941_l22>;
+ 		vddio-supply = <&pm8941_l12>;
+ 		vdda-supply = <&pm8941_l2>;
+@@ -179,7 +181,9 @@
+ 		compatible = "qcom,mdss-dsi-ctrl";
+ 		label = "MDSS DSI CTRL->1";
+ 		cell-index = <1>;
+-		reg = <0xfd922e00 0x600>;
++		reg = 	<0xfd922e00 0x600>,
++			<0xfdf30000 0x108>;
++		reg-names = "dsi_phys", "mmss_misc_phys";
+ 		vdd-supply = <&pm8941_l22>;
+ 		vddio-supply = <&pm8941_l12>;
+ 		vdda-supply = <&pm8941_l2>;
+diff --git a/arch/arm/mach-msm/board/clock-8974-NX503A.c b/arch/arm/mach-msm/board/clock-8974-NX503A.c
+index d4bd688..6446aa6 100644
+--- a/arch/arm/mach-msm/board/clock-8974-NX503A.c
++++ b/arch/arm/mach-msm/board/clock-8974-NX503A.c
+@@ -5098,6 +5098,10 @@ static struct clk_lookup msm_clocks_8974_common[] __initdata = {
+ 	CLK_LOOKUP("pixel_clk", mdss_pclk1_clk.c, "fd922e00.qcom,mdss_dsi"),
+ 	CLK_LOOKUP("mdp_core_clk", mdss_mdp_clk.c, "fd922800.qcom,mdss_dsi"),
+ 	CLK_LOOKUP("mdp_core_clk", mdss_mdp_clk.c, "fd922e00.qcom,mdss_dsi"),
++	CLK_LOOKUP("core_mmss_clk", mmss_misc_ahb_clk.c,
++		"fd922800.qcom,mdss_dsi"),
++	CLK_LOOKUP("core_mmss_clk", mmss_misc_ahb_clk.c,
++		"fd922e00.qcom,mdss_dsi"),
+ 	CLK_LOOKUP("iface_clk", mdss_ahb_clk.c, "fd922100.qcom,hdmi_tx"),
+ 	CLK_LOOKUP("alt_iface_clk", mdss_hdmi_ahb_clk.c,
+ 		"fd922100.qcom,hdmi_tx"),
+-- 
+1.9.1
+

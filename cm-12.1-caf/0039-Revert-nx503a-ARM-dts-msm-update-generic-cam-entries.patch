@@ -1,0 +1,29 @@
+From b517e412d3d8d4900957fec975c09fd36f2b0d26 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 23:48:37 +0800
+Subject: [PATCH 39/50] Revert "nx503a: ARM:dts:msm: update generic cam
+ entries"
+
+This reverts commit 8906954a17adbee2e0cce880b5cb73e1fe459a67.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ drivers/media/platform/msm/camera_v2/sensor/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/media/platform/msm/camera_v2/sensor/Makefile b/drivers/media/platform/msm/camera_v2/sensor/Makefile
+index 3c4e1d7..6365592 100755
+--- a/drivers/media/platform/msm/camera_v2/sensor/Makefile
++++ b/drivers/media/platform/msm/camera_v2/sensor/Makefile
+@@ -5,6 +5,8 @@ ccflags-y += -Idrivers/media/platform/msm/camera_v2/sensor/io
+ ccflags-y += -Idrivers/media/platform/msm/camera_v2/sensor/cci
+ obj-$(CONFIG_MSMB_CAMERA) += cci/ io/ csiphy/ csid/ actuator/ flash/ eeprom/
+ obj-$(CONFIG_MSM_CAMERA_SENSOR) += msm_sensor_init.o msm_sensor_driver.o msm_sensor.o
++obj-$(CONFIG_IMX135_Z5S) += imx135_z5s.o 
++obj-$(CONFIG_IMX135_Z5S_069) += imx135_z5s_069.o 
+ obj-$(CONFIG_IMX134) += imx134.o
+ obj-$(CONFIG_OV8825) += ov8825.o
+ obj-$(CONFIG_OV8865) += ov8865.o
+-- 
+1.9.1
+

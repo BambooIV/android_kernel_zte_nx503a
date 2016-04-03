@@ -1,0 +1,36 @@
+From 3ea8c1d992b1ac28d07728196cd70d44d3dbe9c1 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Wed, 9 Mar 2016 09:59:03 +0800
+Subject: [PATCH 50/50] Revert "[media] Revert "[media] v4l2: vb2: one more fix
+ for REQBUFS()""
+
+* Keep this patch for video recording
+
+This reverts commit 0f59fb0781026ad3949b7ca28634a7d173059800.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ drivers/media/video/videobuf2-core.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/media/video/videobuf2-core.c b/drivers/media/video/videobuf2-core.c
+index ae544a4..6d8b73a 100644
+--- a/drivers/media/video/videobuf2-core.c
++++ b/drivers/media/video/videobuf2-core.c
+@@ -513,6 +513,13 @@ int vb2_reqbufs(struct vb2_queue *q, struct v4l2_requestbuffers *req)
+ 		return -EINVAL;
+ 	}
+ 
++	/*
++	 * If the same number of buffers and memory access method is requested
++	 * then return immediately.
++	 */
++	if (q->memory == req->memory && req->count == q->num_buffers)
++		return 0;
++
+ 	if (req->count == 0 || q->num_buffers != 0 || q->memory != req->memory) {
+ 		/*
+ 		 * We already have buffers allocated, so first check if they
+-- 
+1.9.1
+

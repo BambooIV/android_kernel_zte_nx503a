@@ -1,0 +1,31 @@
+From 14a83bba227b3f848361cc2c66ddbaa984dfa6d8 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 16:30:30 +0800
+Subject: [PATCH 15/50] nx503a: ARM: dts: msm: set overlap fudge factor to 1.75
+ for msm8974
+
+cherry-pick from 19ac5873521aa17a59646c677e86665509c2d722
+
+Set the fudge factor for the overlap bandwidth to 1.75.
+This fixes underruns observed in some use cases with 8974 targets.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi b/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
+index 1615de6..fe40056 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
+@@ -35,6 +35,7 @@
+ 		qcom,mdss-ab-factor = <5 2>;		/* 2 times    */
+ 		qcom,mdss-ib-factor = <3 2>;		/* 1.2 times  */
+ 		qcom,mdss-clk-factor = <5 3>;		/* 1.25 times */
++		qcom,mdss-ib-factor-overlap = <7 4>;	/* 1.75 times  */
+ 
+ 		qcom,max-clk-rate = <320000000>;
+ 		qcom,mdss-pipe-vig-off = <0x00001200 0x00001600
+-- 
+1.9.1
+

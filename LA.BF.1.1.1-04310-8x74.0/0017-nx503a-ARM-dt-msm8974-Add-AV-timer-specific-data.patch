@@ -1,0 +1,41 @@
+From 367fd9c67865af4ff4b8ca4369bf95cf13ad242f Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 15 Mar 2016 12:30:23 +0800
+Subject: [PATCH 17/36] nx503a: ARM: dt: msm8974: Add AV timer specific data
+
+cherry-pick from 9d20b422405a0bfae5ac144313502029607019e7
+
+LPASS exposes registers from which timestamp can be
+read by clients for audio & video synchronization.
+Change adds the register address of AV timer in LPASS.
+---
+ arch/arm/boot/dts/NX503A/msm8974.dtsi | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974.dtsi b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+index b049d63..5be95c1 100644
+--- a/arch/arm/boot/dts/NX503A/msm8974.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -2626,6 +2626,13 @@
+ 			qcom,smdtty-dev-name = "LOOPBACK_TTY";
+ 		};
+ 	};
++
++	qcom,avtimer {
++		compatible = "qcom,avtimer";
++		reg = <0xfe053008 0x4>,
++			<0xfe05300c 0x4>;
++		reg-names = "avtimer_lsb_addr", "avtimer_msb_addr";
++	};
+ };
+ 
+ &gdsc_venus {
+-- 
+1.9.1
+

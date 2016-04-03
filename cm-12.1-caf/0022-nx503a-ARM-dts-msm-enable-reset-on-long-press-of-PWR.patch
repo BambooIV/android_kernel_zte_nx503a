@@ -1,0 +1,37 @@
+From 02dabcfb95978ed6551eccfe21229a7530f7022c Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 20:36:54 +0800
+Subject: [PATCH 22/50] nx503a: ARM: dts: msm: enable reset on long press of
+ PWR key
+
+cherry-pick from b4dbdec21f673894282597f851da61d8520da467
+
+The dt property "qcom,support-reset" is added explicitly in the
+KPDPWR child node of PON module. This enables s2 reset as well as
+configures the s1 and s2 timers for KPDPWR reset source. Now long
+press of PWR key makes the device to go into download mode.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm-pm8941.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm-pm8941.dtsi b/arch/arm/boot/dts/NX503A/msm-pm8941.dtsi
+index 3f268c5..5527ff1 100755
+--- a/arch/arm/boot/dts/NX503A/msm-pm8941.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm-pm8941.dtsi
+@@ -57,7 +57,11 @@
+ 
+ 		qcom,pon_1 {
+ 			qcom,pon-type = <0>;
++			qcom,support-reset = <1>;
+ 			qcom,pull-up = <1>;
++			qcom,s1-timer = <10256>;
++			qcom,s2-timer = <2000>;
++			qcom,s2-type = <1>;
+ 			linux,code = <116>;
+ 		};
+ /* Removed by yfliu, for PWK
+-- 
+1.9.1
+

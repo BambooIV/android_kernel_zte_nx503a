@@ -1,0 +1,33 @@
+From 853d1641df41b701dca951fc636e2e074dc214e7 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 15 Mar 2016 12:28:05 +0800
+Subject: [PATCH 16/36] nx503a: arm/dt: msm8974: Add support for voice svc
+ driver
+
+cherry-pick from 8a63ce79b2dbf5889df74ea3cc1c70ecf6323348
+
+Add a new device that can be used by the voice svc
+driver to allow userspace clients to send IOCTL
+commands
+---
+ arch/arm/boot/dts/NX503A/msm8974.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974.dtsi b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+index b139514..b049d63 100644
+--- a/arch/arm/boot/dts/NX503A/msm8974.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+@@ -1798,6 +1798,10 @@
+ 		compatible = "qti,msm-pcm-loopback";
+ 	};
+ 
++	qcom,msm-voice-svc {
++		compatible = "qcom,msm-voice-svc";
++	};
++
+ 	qcom,msm-dai-q6 {
+ 		compatible = "qcom,msm-dai-q6";
+ 		qcom,msm-dai-q6-sb-0-rx {
+-- 
+1.9.1
+

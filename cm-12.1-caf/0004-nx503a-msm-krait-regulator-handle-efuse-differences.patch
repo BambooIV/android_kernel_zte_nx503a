@@ -1,0 +1,36 @@
+From 06d18102aeafa27893a3d4699676eea62fc59fc5 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 14:56:26 +0800
+Subject: [PATCH 04/50] nx503a: msm: krait-regulator: handle efuse differences
+
+cherry-pick from 5c50e2f56bf8218ef68cffeb583cc7d8d8bb2ce4
+
+Scaling factor version is valid for
+- 8974 based devices when the version bits read 1
+
+Moreover the three bit scaling factor data for
+- 8974 based devices starts at bit 16
+
+Update the code to handle these differences.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm8974-regulator.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974-regulator.dtsi b/arch/arm/boot/dts/NX503A/msm8974-regulator.dtsi
+index 962c956..55da718 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974-regulator.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974-regulator.dtsi
+@@ -465,6 +465,8 @@
+ 		ranges;
+ 		qcom,pfm-threshold = <76>;
+ 		qcom,use-phase-scaling-factor;
++		qcom,phase-scaling-factor-bits-pos = <16>;
++		qcom,valid-scaling-factor-versions = <0 1 0 0>;
+ 
+ 		krait0_vreg: regulator@f9088000 {
+ 			compatible = "qcom,krait-regulator";
+-- 
+1.9.1
+

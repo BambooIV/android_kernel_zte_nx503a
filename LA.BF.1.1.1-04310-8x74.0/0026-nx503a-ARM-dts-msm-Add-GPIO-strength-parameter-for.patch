@@ -1,0 +1,31 @@
+From 34d25f9eaa8d1258acbae7535d59ad54e45ba676 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 15 Mar 2016 12:53:11 +0800
+Subject: [PATCH 26/36] nx503a: ARM: dts: msm: Add GPIO strength parameter for
+
+power manager entry
+
+cherry-pick from 01eae589fc6bbe9d897c2d2d626784829679b8da
+
+Add new parameter which represents GPIO strength value for power
+manager entry for wcnss.
+---
+ arch/arm/boot/dts/NX503A/msm8974.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974.dtsi b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+index 390f1bb..790aed5 100644
+--- a/arch/arm/boot/dts/NX503A/msm8974.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+@@ -2047,7 +2047,7 @@
+ 		gpios = <&msmgpio 36 0>, <&msmgpio 37 0>, <&msmgpio 38 0>, <&msmgpio 39 0>, <&msmgpio 40 0>;
+ 		qcom,has-48mhz-xo;
+ 		qcom,has-pronto-hw;
+-		qcom,wcnss-pm = <11 21 1200 1 1>;
++		qcom,wcnss-pm = <11 21 1200 1 1 6>;
+ 	};
+ 
+ 	qcom,ocmem@fdd00000 {
+-- 
+1.9.1
+

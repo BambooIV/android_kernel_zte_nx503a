@@ -1,0 +1,48 @@
+From c17ff1ce8d46d00c7d6bda87da642b75a8ce3da5 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 14:53:02 +0800
+Subject: [PATCH 03/50] nx503a: ARM: dts: msm: Update device tree node for
+ msm-pcm-dsp
+
+cherry-pick from 01a3f9bfa44806437307be26f9f5370085e657bc
+
+Update the name and properties for msm-pcm-dsp. Use qti instead
+of qcom for device node and its properties.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm8974.dtsi | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974.dtsi b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+index 785887c..e0bec4d 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+@@ -1731,16 +1731,16 @@
+ 		compatible = "qcom,msm-audio-ion";
+ 	};
+ 
+-	qcom,msm-pcm {
+-		compatible = "qcom,msm-pcm-dsp";
+-		qcom,msm-pcm-dsp-id = <0>;
++	qti,msm-pcm {
++		compatible = "qti,msm-pcm-dsp";
++		qti,msm-pcm-dsp-id = <0>;
+ 	};
+ 
+-	qcom,msm-pcm-low-latency {
+-		compatible = "qcom,msm-pcm-dsp";
+-		qcom,msm-pcm-dsp-id = <1>;
+-		qcom,msm-pcm-low-latency;
+-		qcom,latency-level = "regular";
++	qti,msm-pcm-low-latency {
++		compatible = "qti,msm-pcm-dsp";
++		qti,msm-pcm-dsp-id = <1>;
++		qti,msm-pcm-low-latency;
++		qti,latency-level = "regular";
+ 	};
+ 
+ 	qcom,msm-pcm-routing {
+-- 
+1.9.1
+

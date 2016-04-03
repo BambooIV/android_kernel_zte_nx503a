@@ -1,0 +1,37 @@
+From 4c404de8cefac4a19ba99e728871e12b265dcbdf Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 15 Mar 2016 12:42:13 +0800
+Subject: [PATCH 22/36] nx503a: msm: vidc: Refactor OCMEM alloc, set, unset and
+ free
+
+cherry-pick from 39c9f4ed53e6f866d472600d97306004914b31cd
+
+1. Move OCMEM handling to venus_hfi from msm_vidc layer
+and refactor all its calls. Only allocate/set ocmem
+in two places: after we recieve sys_init_done and
+when resume from power collapse. Similarly only
+unset/free on core release and when we go into power
+collapse.
+
+2. Rename "has_ocmem" to "ocmem_size" and update
+the same in dtsi file.
+---
+ arch/arm/boot/dts/NX503A/msm8974.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974.dtsi b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+index 5be95c1..360a707 100644
+--- a/arch/arm/boot/dts/NX503A/msm8974.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+@@ -214,7 +214,7 @@
+ 		interrupts = <0 44 0>;
+ 		vdd-supply = <&gdsc_venus>;
+ 		qcom,hfi = "venus";
+-		qcom,has-ocmem;
++		qcom,ocmem-size = <524288>; /* 512 * 1024*/
+ 		qcom,max-hw-load = <1216800>; /* 3840 x 2160 @ 30 + 1080p @ 30*/
+ 	};
+ 
+-- 
+1.9.1
+

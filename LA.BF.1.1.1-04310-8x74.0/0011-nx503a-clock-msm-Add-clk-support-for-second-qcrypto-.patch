@@ -1,0 +1,54 @@
+From bbb9d5218c2848ecdfad3559f22a88a679a91fb4 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 15 Mar 2016 12:14:34 +0800
+Subject: [PATCH 11/36] nx503a: clock: msm: Add clk support for second qcrypto
+ device
+
+cherry-pick from 57b9cb2babd29528bf578f347190d72571cfba90
+
+Add clock entry for a second qcrypto instance for 8974.
+---
+ arch/arm/mach-msm/board/board-8974-NX503A.c |  2 --
+ arch/arm/mach-msm/board/clock-8974-NX503A.c | 13 +++++++++----
+ 2 files changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/mach-msm/board/board-8974-NX503A.c b/arch/arm/mach-msm/board/board-8974-NX503A.c
+index 53d4b1c..2f5802f 100644
+--- a/arch/arm/mach-msm/board/board-8974-NX503A.c
++++ b/arch/arm/mach-msm/board/board-8974-NX503A.c
+@@ -149,8 +149,6 @@ static struct of_dev_auxdata msm8974_auxdata_lookup[] __initdata = {
+ 			"msm-tsens", NULL),
+ 	OF_DEV_AUXDATA("qcom,qcedev", 0xFD440000, \
+ 			"qcedev.0", NULL),
+-	OF_DEV_AUXDATA("qcom,qcrypto", 0xFD440000, \
+-			"qcrypto.0", NULL),
+ 	OF_DEV_AUXDATA("qcom,hsic-host", 0xF9A00000, \
+ 			"msm_hsic_host", NULL),
+ 	OF_DEV_AUXDATA("qcom,hsic-smsc-hub", 0, "msm_smsc_hub",
+diff --git a/arch/arm/mach-msm/board/clock-8974-NX503A.c b/arch/arm/mach-msm/board/clock-8974-NX503A.c
+index 6446aa6..9e30f00 100644
+--- a/arch/arm/mach-msm/board/clock-8974-NX503A.c
++++ b/arch/arm/mach-msm/board/clock-8974-NX503A.c
+@@ -5007,10 +5007,15 @@ static struct clk_lookup msm_clocks_8974_common[] __initdata = {
+ 	CLK_LOOKUP("bus_clk",      gcc_ce2_axi_clk.c,     "qcedev.0"),
+ 	CLK_LOOKUP("core_clk_src", ce2_clk_src.c,         "qcedev.0"),
+ 
+-	CLK_LOOKUP("core_clk",     gcc_ce2_clk.c,     "qcrypto.0"),
+-	CLK_LOOKUP("iface_clk",    gcc_ce2_ahb_clk.c, "qcrypto.0"),
+-	CLK_LOOKUP("bus_clk",      gcc_ce2_axi_clk.c, "qcrypto.0"),
+-	CLK_LOOKUP("core_clk_src", ce2_clk_src.c,     "qcrypto.0"),
++	CLK_LOOKUP("core_clk",     gcc_ce2_clk.c,     "fd440000.qcom,qcrypto"),
++	CLK_LOOKUP("iface_clk",    gcc_ce2_ahb_clk.c, "fd440000.qcom,qcrypto"),
++	CLK_LOOKUP("bus_clk",      gcc_ce2_axi_clk.c, "fd440000.qcom,qcrypto"),
++	CLK_LOOKUP("core_clk_src", ce2_clk_src.c,     "fd440000.qcom,qcrypto"),
++
++	CLK_LOOKUP("core_clk",     gcc_ce2_clk.c,     "fd440000.qcom,qcrypto1"),
++	CLK_LOOKUP("iface_clk",    gcc_ce2_ahb_clk.c, "fd440000.qcom,qcrypto1"),
++	CLK_LOOKUP("bus_clk",      gcc_ce2_axi_clk.c, "fd440000.qcom,qcrypto1"),
++	CLK_LOOKUP("core_clk_src", ce2_clk_src.c,     "fd440000.qcom,qcrypto1"),
+ 
+ 	CLK_LOOKUP("core_clk",     gcc_ce1_clk.c,         "qseecom"),
+ 	CLK_LOOKUP("iface_clk",    gcc_ce1_ahb_clk.c,     "qseecom"),
+-- 
+1.9.1
+

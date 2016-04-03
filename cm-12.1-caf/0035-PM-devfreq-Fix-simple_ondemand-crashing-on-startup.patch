@@ -1,0 +1,42 @@
+From d3b46b669162ff6eca723b2b1447a32324167b9a Mon Sep 17 00:00:00 2001
+From: myfluxi <linflux@arcor.de>
+Date: Sun, 9 Feb 2014 21:33:28 +0100
+Subject: [PATCH 35/50] PM: devfreq: Fix simple_ondemand crashing on startup
+
+simple_ondemands private data must be set to NULL, otherwise we would
+run into a NULL pointer in kgsl_devfreq_get_dev_status().
+
+Fix boot issue
+
+Change-Id: I6cc6a8b11e3b58b8c3e3c26d43ee36949cf62351
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ drivers/devfreq/governor_simpleondemand.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/devfreq/governor_simpleondemand.c b/drivers/devfreq/governor_simpleondemand.c
+index d37997d..6ae9f86 100644
+--- a/drivers/devfreq/governor_simpleondemand.c
++++ b/drivers/devfreq/governor_simpleondemand.c
+@@ -23,7 +23,7 @@ static int devfreq_simple_ondemand_func(struct devfreq *df,
+ 					u32 *flag)
+ {
+ 	struct devfreq_dev_status stat;
+-	int err = df->profile->get_dev_status(df->dev.parent, &stat);
++	int err;
+ 	unsigned long long a, b;
+ 	unsigned int dfso_upthreshold = DFSO_UPTHRESHOLD;
+ 	unsigned int dfso_downdifferential = DFSO_DOWNDIFFERENCTIAL;
+@@ -31,6 +31,9 @@ static int devfreq_simple_ondemand_func(struct devfreq *df,
+ 	unsigned long max = (df->max_freq) ? df->max_freq : UINT_MAX;
+ 	unsigned long min = (df->min_freq) ? df->min_freq : 0;
+ 
++	stat.private_data = NULL;
++
++	err = df->profile->get_dev_status(df->dev.parent, &stat);
+ 	if (err)
+ 		return err;
+ 
+-- 
+1.9.1
+

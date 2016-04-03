@@ -1,0 +1,34 @@
+From dcf3a49f51c56f1b8a490e872bb9544620f95d5a Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 15:59:03 +0800
+Subject: [PATCH 11/50] nx503a: ARM: dts: msm: BIMC for 8974 class devices
+
+cherry-pick from ddd4dae40bfa7c5656d211f3def3c5f7c9d1f6d0
+
+Map memory for tools to access BIMC facilities.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm8974.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974.dtsi b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+index 633acc0..3863a98 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+@@ -2530,6 +2530,12 @@
+ 		interrupts = <0 1 0>;
+ 	};
+ 
++	bimc_sharedmem {
++		compatible = "qcom,sharedmem-uio";
++		reg = <0xfc380000 0x00100000>;
++		reg-names = "bimc";
++	};
++
+ 	qcom,smdtty {
+ 		compatible = "qcom,smdtty";
+ 
+-- 
+1.9.1
+

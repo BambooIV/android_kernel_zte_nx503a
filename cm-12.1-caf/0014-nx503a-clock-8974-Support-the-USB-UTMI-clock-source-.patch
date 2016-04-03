@@ -1,0 +1,54 @@
+From d20ad865b9606c88b985f39cdf5aacd937bcef55 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 16:11:03 +0800
+Subject: [PATCH 14/50] nx503a: clock-8974: Support the USB UTMI clock source
+ divider
+
+cherry-pick from 936d99179629a904f88c4a437115ea7dc6b516da
+
+The gcc_usb30_mock_utmi_clk also contains a CDIV divider
+that can do integer division on 8974V2 and newer targets.
+Support this divider in clock-gcc-8974.
+Drivers will need to set a rate on usb30_utmi_clk_src, and
+then set a divider on gcc_usb30_mock_utmi_clk. Both of these
+operations shall make use of the clk_set_rate API.
+Also update the frequency table on usb30_utmi_clk_src to
+include a new 48MHz rate.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/mach-msm/board/clock-8974-NX503A.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/mach-msm/board/clock-8974-NX503A.c b/arch/arm/mach-msm/board/clock-8974-NX503A.c
+index 9e30f00..37de722 100755
+--- a/arch/arm/mach-msm/board/clock-8974-NX503A.c
++++ b/arch/arm/mach-msm/board/clock-8974-NX503A.c
+@@ -1653,6 +1653,7 @@ static struct rcg_clk tsif_ref_clk_src = {
+ };
+ 
+ static struct clk_freq_tbl ftbl_gcc_usb30_mock_utmi_clk[] = {
++	F(48000000,  gpll0, 12.5,   0,   0),
+ 	F(60000000,  gpll0,   10,   0,   0),
+ 	F_END
+ };
+@@ -5060,6 +5061,7 @@ static struct clk_lookup msm_clocks_8974_common[] __initdata = {
+ 	CLK_LOOKUP("mem_clk", gcc_usb30_master_clk.c,           "usb_bam"),
+ 	CLK_LOOKUP("mem_iface_clk", gcc_sys_noc_usb3_axi_clk.c, "usb_bam"),
+ 	CLK_LOOKUP("core_clk", gcc_usb30_master_clk.c,    "msm_dwc3"),
++	CLK_LOOKUP("utmi_clk_src", usb30_mock_utmi_clk_src.c, "msm_dwc3"),
+ 	CLK_LOOKUP("utmi_clk", gcc_usb30_mock_utmi_clk.c, "msm_dwc3"),
+ 	CLK_LOOKUP("iface_clk", gcc_sys_noc_usb3_axi_clk.c, "msm_dwc3"),
+ 	CLK_LOOKUP("iface_clk", gcc_sys_noc_usb3_axi_clk.c, "msm_usb3"),
+@@ -5791,6 +5793,8 @@ static void __init msm8974_v2_clock_override(void)
+ 
+ 	mdp_clk_src.c.fmax[VDD_DIG_NOMINAL] = 240000000;
+ 
++	gcc_usb30_mock_utmi_clk.max_div = 3;
++
+ 	/* The parent of each of the QUP I2C clocks is an RCG on V2 */
+ 	for (i = 0; i < ARRAY_SIZE(qup_i2c_clks); i++)
+ 		qup_i2c_clks[i][0]->parent =  qup_i2c_clks[i][1];
+-- 
+1.9.1
+

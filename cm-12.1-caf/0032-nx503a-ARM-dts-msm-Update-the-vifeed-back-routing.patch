@@ -1,0 +1,32 @@
+From 2d03938e96afb8f23e79b5a230c28bf6763a9ea3 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 21:04:48 +0800
+Subject: [PATCH 32/50] nx503a: ARM: dts: msm: Update the vifeed back routing
+
+cherry-pick from eace57a72a68e7b1afc5bb671a0e4bcd4c168fe6
+
+Codec clock should be enabled when vifeedback path for speaker
+protection is enabled.
+Change adds the routing entries to enable the codec clock for
+speaker protection vi capture feedback path for 8974
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm8974.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974.dtsi b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+index 62b35e7..90190af 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+@@ -856,6 +856,7 @@
+ 			    "lpaif_quat_mode_muxsel";
+ 
+ 		qcom,audio-routing =
++			"AIF4 VI", "MCLK",
+ 			"RX_BIAS", "MCLK",
+ 			"LDO_H", "MCLK",
+ 			"AIF4 MAD", "MCLK",
+-- 
+1.9.1
+

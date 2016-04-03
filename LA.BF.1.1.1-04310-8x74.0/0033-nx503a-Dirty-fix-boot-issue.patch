@@ -1,0 +1,374 @@
+From ad7729133980538aa6d2de7b69f7796b9de4619e Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 15 Mar 2016 14:03:08 +0800
+Subject: [PATCH 33/36] nx503a: Dirty fix boot issue
+
+Revert "nx503a: ARM: dts: msm: Remove redundant IADC channel parameters"
+This reverts commit 3a848f3d95792cdc2728b062ac59db2f9f350452.
+
+Revert "ARM: dts: msm: Remove redundant IADC channel parameters"
+This reverts commit 5cf5dad7f7e584bf98764ec9249cccb8e73a94f2.
+
+Revert "hwmon: qpnp-current: Fix parameter configuration for IADC"
+This reverts commit ba87458999c82ee4d09c8180b077250a990a808f.
+---
+ .../devicetree/bindings/hwmon/qpnp-adc-current.txt | 41 ++++++++++++
+ arch/arm/boot/dts/NX503A/msm-pm8941.dtsi           |  4 ++
+ arch/arm/boot/dts/msm-pm8110.dtsi                  |  4 ++
+ arch/arm/boot/dts/msm-pm8226.dtsi                  |  8 +++
+ arch/arm/boot/dts/msm-pm8941.dtsi                  |  4 ++
+ drivers/hwmon/qpnp-adc-common.c                    | 73 ++++++++++------------
+ drivers/hwmon/qpnp-adc-current.c                   | 47 +++-----------
+ 7 files changed, 103 insertions(+), 78 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/hwmon/qpnp-adc-current.txt b/Documentation/devicetree/bindings/hwmon/qpnp-adc-current.txt
+index 9bc44f5..3e6d060 100644
+--- a/Documentation/devicetree/bindings/hwmon/qpnp-adc-current.txt
++++ b/Documentation/devicetree/bindings/hwmon/qpnp-adc-current.txt
+@@ -58,6 +58,43 @@ Required properties:
+ 		    1 : 1K
+ 		    2 : 2K
+ 		    3 : 4K
++- qcom,pre-div-channel-scaling : Pre-div used for the channel before the signal
++				 is being measured.
++- qcom,calibration-type : Calibration point values vary with temperature.
++			  For improved accuracy fresh gain and offset point values
++			  can be used for calibration. Reading fresh values for ever
++			  read affects the reading time. Application can use the historic
++			  values used from the trim register values.
++			  Select from the following strings.
++			  "absolute" : Uses TRIM gain and offset values for calibration.
++			  "ratiometric" : Calculate the gain and offset calibration value when an ADC
++			  	    request is issued.
++- qcom,scale-function : Scaling fuction used to convert raw ADC code to units specific to
++			a given channel.
++			Select from the following unsigned int.
++			0 : Default scaling to convert raw adc code to voltage.
++			1 : Conversion to temperature based on btm parameters.
++			2 : Returns result in milli degree's Centigrade.
++			3 : Returns current across 0.1 ohm resistor.
++			4 : Returns XO thermistor voltage in degree's Centigrade.
++- qcom,hw-settle-time : Settling period for the channel before ADC read.
++			Select from the following unsigned int.
++			0 : 0us
++			1 : 100us
++			2 : 200us
++			3 : 300us
++			4 : 400us
++			5 : 500us
++			6 : 600us
++			7 : 700us
++			8 : 800us
++			9 : 900us
++			0xa : 1ms
++			0xb : 2ms
++			0xc : 4ms
++			0xd : 6ms
++			0xe : 8ms
++			0xf : 10ms
+ - qcom,fast-avg-setup : Average number of samples to be used for measurement. Fast averaging
+ 			provides the option to obtain a single measurement from the ADC that
+ 			is an average of multiple samples. The value selected is 2^(value)
+@@ -93,6 +130,10 @@ Example:
+                                 label = "rsense";
+                                 reg = <0>;
+                                 qcom,decimation = <0>;
++                                qcom,pre-div-channel-scaling = <20>;
++                                qcom,calibration-type = "fresh";
++                                qcom,scale-function = <0>;
++                                qcom,hw-settle-time = <0>;
+                                 qcom,fast-avg-setup = <0>;
+                         };
+ 	};
+diff --git a/arch/arm/boot/dts/NX503A/msm-pm8941.dtsi b/arch/arm/boot/dts/NX503A/msm-pm8941.dtsi
+index 5527ff1..345eb8f 100644
+--- a/arch/arm/boot/dts/NX503A/msm-pm8941.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm-pm8941.dtsi
+@@ -901,6 +901,10 @@ CONFIG_ZTEMT_NX503A_CHARGE
+ 			label = "internal_rsense";
+ 			reg = <0>;
+ 			qcom,decimation = <0>;
++			qcom,pre-div-channel-scaling = <1>;
++			qcom,calibration-type = "absolute";
++			qcom,scale-function = <0>;
++			qcom,hw-settle-time = <0>;
+ 			qcom,fast-avg-setup = <0>;
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/msm-pm8110.dtsi b/arch/arm/boot/dts/msm-pm8110.dtsi
+index 39b29bb..652ef3d 100644
+--- a/arch/arm/boot/dts/msm-pm8110.dtsi
++++ b/arch/arm/boot/dts/msm-pm8110.dtsi
+@@ -279,6 +279,10 @@
+ 				label = "internal_rsense";
+ 				reg = <0>;
+ 				qcom,decimation = <0>;
++				qcom,pre-div-channel-scaling = <1>;
++				qcom,calibration-type = "absolute";
++				qcom,scale-function = <0>;
++				qcom,hw-settle-time = <0>;
+ 				qcom,fast-avg-setup = <0>;
+ 			};
+ 		};
+diff --git a/arch/arm/boot/dts/msm-pm8226.dtsi b/arch/arm/boot/dts/msm-pm8226.dtsi
+index 9b6e34b..e8b7177 100644
+--- a/arch/arm/boot/dts/msm-pm8226.dtsi
++++ b/arch/arm/boot/dts/msm-pm8226.dtsi
+@@ -441,12 +441,20 @@
+ 				label = "internal_rsense";
+ 				reg = <0>;
+ 				qcom,decimation = <0>;
++				qcom,pre-div-channel-scaling = <1>;
++				qcom,calibration-type = "absolute";
++				qcom,scale-function = <0>;
++				qcom,hw-settle-time = <0>;
+ 				qcom,fast-avg-setup = <0>;
+ 			};
+ 			chan@1 {
+ 				label = "external_rsense";
+ 				reg = <1>;
+ 				qcom,decimation = <0>;
++				qcom,pre-div-channel-scaling = <1>;
++				qcom,calibration-type = "absolute";
++				qcom,scale-function = <0>;
++				qcom,hw-settle-time = <0>;
+ 				qcom,fast-avg-setup = <0>;
+ 			};
+ 		};
+diff --git a/arch/arm/boot/dts/msm-pm8941.dtsi b/arch/arm/boot/dts/msm-pm8941.dtsi
+index 34591b8..f1f4eb7 100644
+--- a/arch/arm/boot/dts/msm-pm8941.dtsi
++++ b/arch/arm/boot/dts/msm-pm8941.dtsi
+@@ -839,6 +839,10 @@
+ 			label = "internal_rsense";
+ 			reg = <0>;
+ 			qcom,decimation = <0>;
++			qcom,pre-div-channel-scaling = <1>;
++			qcom,calibration-type = "absolute";
++			qcom,scale-function = <0>;
++			qcom,hw-settle-time = <0>;
+ 			qcom,fast-avg-setup = <0>;
+ 		};
+ 	};
+diff --git a/drivers/hwmon/qpnp-adc-common.c b/drivers/hwmon/qpnp-adc-common.c
+index d550091..e5acdd8 100755
+--- a/drivers/hwmon/qpnp-adc-common.c
++++ b/drivers/hwmon/qpnp-adc-common.c
+@@ -1172,7 +1172,7 @@ int32_t qpnp_adc_get_devicetree_data(struct spmi_device *spmi,
+ 
+ 	for_each_child_of_node(node, child) {
+ 		int channel_num, scaling, post_scaling, hw_settle_time;
+-		int fast_avg_setup, calib_type = 0, rc;
++		int fast_avg_setup, calib_type, rc;
+ 		const char *calibration_param, *channel_name;
+ 
+ 		channel_name = of_get_property(child,
+@@ -1193,40 +1193,23 @@ int32_t qpnp_adc_get_devicetree_data(struct spmi_device *spmi,
+ 			pr_err("Invalid channel decimation property\n");
+ 			return -EINVAL;
+ 		}
+-		if (!of_device_is_compatible(node, "qcom,qpnp-iadc")) {
+-			rc = of_property_read_u32(child,
+-				"qcom,hw-settle-time", &hw_settle_time);
+-			if (rc) {
+-				pr_err("Invalid channel hw settle time property\n");
+-				return -EINVAL;
+-			}
+-			rc = of_property_read_u32(child,
++		rc = of_property_read_u32(child,
+ 				"qcom,pre-div-channel-scaling", &scaling);
+-			if (rc) {
+-				pr_err("Invalid channel scaling property\n");
+-				return -EINVAL;
+-			}
+-			rc = of_property_read_u32(child,
++		if (rc) {
++			pr_err("Invalid channel scaling property\n");
++			return -EINVAL;
++		}
++		rc = of_property_read_u32(child,
+ 				"qcom,scale-function", &post_scaling);
+-			if (rc) {
+-				pr_err("Invalid channel post scaling property\n");
+-				return -EINVAL;
+-			}
+-			rc = of_property_read_string(child,
+-				"qcom,calibration-type", &calibration_param);
+-			if (rc) {
+-				pr_err("Invalid calibration type\n");
+-				return -EINVAL;
+-			}
+-			if (!strcmp(calibration_param, "absolute"))
+-				calib_type = CALIB_ABSOLUTE;
+-			else if (!strcmp(calibration_param, "ratiometric"))
+-				calib_type = CALIB_RATIOMETRIC;
+-			else {
+-				pr_err("%s: Invalid calibration property\n",
+-						__func__);
+-				return -EINVAL;
+-			}
++		if (rc) {
++			pr_err("Invalid channel post scaling property\n");
++			return -EINVAL;
++		}
++		rc = of_property_read_u32(child,
++				"qcom,hw-settle-time", &hw_settle_time);
++		if (rc) {
++			pr_err("Invalid channel hw settle time property\n");
++			return -EINVAL;
+ 		}
+ 		rc = of_property_read_u32(child,
+ 				"qcom,fast-avg-setup", &fast_avg_setup);
+@@ -1234,17 +1217,29 @@ int32_t qpnp_adc_get_devicetree_data(struct spmi_device *spmi,
+ 			pr_err("Invalid channel fast average setup\n");
+ 			return -EINVAL;
+ 		}
++		rc = of_property_read_string(child, "qcom,calibration-type",
++							&calibration_param);
++		if (rc) {
++			pr_err("Invalid calibration type\n");
++			return -EINVAL;
++		}
++		if (!strncmp(calibration_param, "absolute", 8))
++			calib_type = CALIB_ABSOLUTE;
++		else if (!strncmp(calibration_param, "ratiometric", 11))
++			calib_type = CALIB_RATIOMETRIC;
++		else {
++			pr_err("%s: Invalid calibration property\n", __func__);
++			return -EINVAL;
++		}
+ 		/* Individual channel properties */
+ 		adc_channel_list[i].name = (char *)channel_name;
+ 		adc_channel_list[i].channel_num = channel_num;
++		adc_channel_list[i].chan_path_prescaling = scaling;
+ 		adc_channel_list[i].adc_decimation = decimation;
++		adc_channel_list[i].adc_scale_fn = post_scaling;
++		adc_channel_list[i].hw_settle_time = hw_settle_time;
+ 		adc_channel_list[i].fast_avg_setup = fast_avg_setup;
+-		if (!of_device_is_compatible(node, "qcom,qpnp-iadc")) {
+-			adc_channel_list[i].chan_path_prescaling = scaling;
+-			adc_channel_list[i].adc_scale_fn = post_scaling;
+-			adc_channel_list[i].hw_settle_time = hw_settle_time;
+-			adc_channel_list[i].calib_type = calib_type;
+-		}
++		adc_channel_list[i].calib_type = calib_type;
+ 		i++;
+ 	}
+ 
+diff --git a/drivers/hwmon/qpnp-adc-current.c b/drivers/hwmon/qpnp-adc-current.c
+index 1354907..dddbbd0 100644
+--- a/drivers/hwmon/qpnp-adc-current.c
++++ b/drivers/hwmon/qpnp-adc-current.c
+@@ -70,6 +70,7 @@
+ #define QPNP_ADC_DEC_RATIO_SEL_MASK			0xc
+ #define QPNP_ADC_DIG_DEC_RATIO_SEL_SHIFT		2
+ 
++#define QPNP_HW_SETTLE_DELAY				0x51
+ #define QPNP_CONV_REQ					0x52
+ #define QPNP_CONV_REQ_SET				BIT(7)
+ #define QPNP_CONV_SEQ_CTL				0x54
+@@ -162,7 +163,6 @@ struct qpnp_iadc_chip {
+ 	bool					iadc_poll_eoc;
+ 	u16					batt_id_trim_cnst_rds;
+ 	int					rds_trim_default_type;
+-	int					max_channels_available;
+ 	bool					rds_trim_default_check;
+ 	int32_t					rsense_workaround_value;
+ 	struct sensor_device_attribute		sens_attr[0];
+@@ -802,6 +802,13 @@ static int32_t qpnp_iadc_configure(struct qpnp_iadc_chip *iadc,
+ 		return rc;
+ 	}
+ 
++	rc = qpnp_iadc_write_reg(iadc, QPNP_HW_SETTLE_DELAY,
++				iadc->adc->amux_prop->hw_settle_time);
++	if (rc < 0) {
++		pr_err("qpnp adc configure error for hw settling time setup\n");
++		return rc;
++	}
++
+ 	rc = qpnp_iadc_write_reg(iadc, QPNP_FAST_AVG_CTL,
+ 					iadc->adc->amux_prop->fast_avg_setup);
+ 	if (rc < 0) {
+@@ -920,9 +927,6 @@ int32_t qpnp_iadc_calibrate_for_trim(struct qpnp_iadc_chip *iadc,
+ 		pm_stay_awake(iadc->dev);
+ 	}
+ 
+-	iadc->adc->amux_prop->decimation = DECIMATION_TYPE1;
+-	iadc->adc->amux_prop->fast_avg_setup = ADC_FAST_AVG_SAMPLE_1;
+-
+ 	rc = qpnp_iadc_configure(iadc, GAIN_CALIBRATION_17P857MV,
+ 						&raw_data, mode_sel);
+ 	if (rc < 0) {
+@@ -1166,7 +1170,6 @@ int32_t qpnp_iadc_read(struct qpnp_iadc_chip *iadc,
+ 	int32_t rsense_u_ohms = 0;
+ 	int64_t result_current;
+ 	uint16_t raw_data;
+-	int dt_index = 0;
+ 
+ 	if (qpnp_iadc_is_valid(iadc) < 0)
+ 		return -EPROBE_DEFER;
+@@ -1184,22 +1187,6 @@ int32_t qpnp_iadc_read(struct qpnp_iadc_chip *iadc,
+ 
+ 	mutex_lock(&iadc->adc->adc_lock);
+ 
+-	while (((enum qpnp_iadc_channels)
+-		iadc->adc->adc_channels[dt_index].channel_num
+-		!= channel) && (dt_index < iadc->max_channels_available))
+-		dt_index++;
+-
+-	if (dt_index >= iadc->max_channels_available) {
+-		pr_err("not a valid IADC channel\n");
+-		rc = -EINVAL;
+-		goto fail;
+-	}
+-
+-	iadc->adc->amux_prop->decimation =
+-			iadc->adc->adc_channels[dt_index].adc_decimation;
+-	iadc->adc->amux_prop->fast_avg_setup =
+-			iadc->adc->adc_channels[dt_index].fast_avg_setup;
+-
+ 	if (iadc->iadc_poll_eoc) {
+ 		pr_debug("acquiring iadc eoc wakelock\n");
+ 		pm_stay_awake(iadc->dev);
+@@ -1302,7 +1289,6 @@ int32_t qpnp_iadc_vadc_sync_read(struct qpnp_iadc_chip *iadc,
+ 	enum qpnp_vadc_channels v_channel, struct qpnp_vadc_result *v_result)
+ {
+ 	int rc = 0, mode_sel = 0, num = 0, rsense_n_ohms = 0, sign = 0;
+-	int dt_index = 0;
+ 	uint16_t raw_data;
+ 	int32_t rsense_u_ohms = 0;
+ 	int64_t result_current;
+@@ -1330,22 +1316,6 @@ int32_t qpnp_iadc_vadc_sync_read(struct qpnp_iadc_chip *iadc,
+ 		goto fail;
+ 	}
+ 
+-	while (((enum qpnp_iadc_channels)
+-		iadc->adc->adc_channels[dt_index].channel_num
+-		!= i_channel) && (dt_index < iadc->max_channels_available))
+-		dt_index++;
+-
+-	if (dt_index >= iadc->max_channels_available) {
+-		pr_err("not a valid IADC channel\n");
+-		rc = -EINVAL;
+-		goto fail;
+-	}
+-
+-	iadc->adc->amux_prop->decimation =
+-			iadc->adc->adc_channels[dt_index].adc_decimation;
+-	iadc->adc->amux_prop->fast_avg_setup =
+-			iadc->adc->adc_channels[dt_index].fast_avg_setup;
+-
+ 	rc = qpnp_iadc_configure(iadc, i_channel, &raw_data, mode_sel);
+ 	if (rc < 0) {
+ 		pr_err("qpnp adc result read failed with %d\n", rc);
+@@ -1559,7 +1529,6 @@ static int __devinit qpnp_iadc_probe(struct spmi_device *spmi)
+ 		goto fail;
+ 	}
+ 
+-	iadc->max_channels_available = count_adc_channel_list;
+ 	INIT_WORK(&iadc->trigger_completion_work, qpnp_iadc_trigger_completion);
+ 	INIT_DELAYED_WORK(&iadc->iadc_work, qpnp_iadc_work);
+ 	rc = qpnp_iadc_comp_info(iadc);
+-- 
+1.9.1
+

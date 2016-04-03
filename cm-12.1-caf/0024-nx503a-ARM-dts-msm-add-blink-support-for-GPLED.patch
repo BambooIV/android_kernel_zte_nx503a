@@ -1,0 +1,88 @@
+From 08902f00a63ed67d988d31cb4b1424d4395eadb4 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 20:45:28 +0800
+Subject: [PATCH 24/50] nx503a: ARM: dts: msm: add blink support for GPLED
+
+cherry-pick from e4ebc1e5510c8d59a6d1766344d12b6522c1ee9d
+
+Existing implementation does not support blink functionality for
+GPLED. Add a DT parameter qcom,use-blink to add blink sysfs entry
+for switching into lpg mode when GPLED is to be used for blinking.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm8974-leds.dtsi | 34 +++++++++++++++++++++++++-----
+ 1 file changed, 29 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974-leds.dtsi b/arch/arm/boot/dts/NX503A/msm8974-leds.dtsi
+index db58de6..368ba91 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974-leds.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974-leds.dtsi
+@@ -138,21 +138,31 @@
+ 			qcom,row-id = <0>;
+ 			qcom,row-src-en;
+ 			qcom,always-on;
++			qcom,start-idx = <1>;
++			qcom,ramp-step-ms = <120>;
++			qcom,duty-pcts = [00 00 00 00 64
++					64 00 00 00 00];
++			qcom,use-blink;
++			qcom,in-order-command-processing;
+ 		};
+ 
+ 		qcom,kpdbl2 {
+ 			label = "kpdbl";
+-			linux,name = "kpdbl-lut-2";
+-			qcom,mode = "lpg";
++			linux,name = "kpdbl-pwm-2";
++			qcom,mode = "pwm";
+ 			qcom,pwm-channel = <9>;
+ 			qcom,pwm-us = <1000>;
+-			qcom,start-idx = <1>;
+-			qcom,duty-pcts = [00 00 00 00 64
+-					64 00 00 00 00];
+ 			qcom,id = <7>;
+ 			qcom,max-current = <20>;
+ 			qcom,row-id = <1>;
+ 			qcom,row-src-en;
++                        qcom,start-idx = <1>;
++                        qcom,ramp-step-ms = <120>;
++                        qcom,duty-pcts = [00 00 00 00 64
++                                        64 00 00 00 00];
++                        qcom,use-blink;
++                        qcom,in-order-command-processing;
++
+ 		};
+ 
+ 		qcom,kpdbl3 {
+@@ -165,6 +175,13 @@
+ 			qcom,max-current = <20>;
+ 			qcom,row-id = <2>;
+ 			qcom,row-src-en;
++                        qcom,start-idx = <1>;
++                        qcom,ramp-step-ms = <120>;
++                        qcom,duty-pcts = [00 00 00 00 64
++                                        64 00 00 00 00];
++                        qcom,use-blink;
++                        qcom,in-order-command-processing;
++
+ 		};
+ 
+ 		qcom,kpdbl4 {
+@@ -178,6 +195,13 @@
+ 			qcom,row-id = <3>;
+ 			qcom,row-src-en;
+ 			qcom,always-on;
++                        qcom,start-idx = <1>;
++                        qcom,ramp-step-ms = <120>;
++                        qcom,duty-pcts = [00 00 00 00 64
++                                        64 00 00 00 00];
++                        qcom,use-blink;
++                        qcom,in-order-command-processing;
++
+ 		};
+ 	};
+ };
+-- 
+1.9.1
+

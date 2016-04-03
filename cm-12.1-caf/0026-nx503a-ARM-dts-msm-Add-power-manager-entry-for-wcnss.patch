@@ -1,0 +1,31 @@
+From 94030cca30c5009a708af97373f7848984c5a611 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 20:51:39 +0800
+Subject: [PATCH 26/50] nx503a: ARM: dts: msm: Add power manager entry for
+ wcnss
+
+cherry-pick from a5711b82f28bbd08814fbd46ee86e3fce47da457
+
+Add power manager entry for wcnss which is use
+to send LDO change notification to FW.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm8974.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974.dtsi b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+index 648ee44..390f1bb 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+@@ -2047,6 +2047,7 @@
+ 		gpios = <&msmgpio 36 0>, <&msmgpio 37 0>, <&msmgpio 38 0>, <&msmgpio 39 0>, <&msmgpio 40 0>;
+ 		qcom,has-48mhz-xo;
+ 		qcom,has-pronto-hw;
++		qcom,wcnss-pm = <11 21 1200 1 1>;
+ 	};
+ 
+ 	qcom,ocmem@fdd00000 {
+-- 
+1.9.1
+

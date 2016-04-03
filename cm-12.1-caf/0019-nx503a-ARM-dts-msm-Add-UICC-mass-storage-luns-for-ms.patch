@@ -1,0 +1,31 @@
+From c2cf70c4981a7e41ad461fad79b79c92ba8b4164 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 16:53:14 +0800
+Subject: [PATCH 19/50] nx503a: ARM: dts: msm: Add UICC mass storage luns for
+ msm8974
+
+cherry-pick from 7d6b9721eace812d92d12dbf6e55b4579b809805
+
+USB UICC cards are supported on MSM8974. Add 1 lun to expose the user
+partition in mass storage function.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm8974-v2.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974-v2.dtsi b/arch/arm/boot/dts/NX503A/msm8974-v2.dtsi
+index cc0f5c7..b146092 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974-v2.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974-v2.dtsi
+@@ -42,6 +42,7 @@
+ 		reg = <0xfe8050c8 0xc8>;
+ 		qcom,android-usb-swfi-latency = <1>;
+ 		qcom,android-usb-cdrom;
++		qcom,android-usb-uicc-nluns = /bits/ 8 <1>;
+ 	};
+ 
+ 	qcom,msm-imem@fe805000 {
+-- 
+1.9.1
+

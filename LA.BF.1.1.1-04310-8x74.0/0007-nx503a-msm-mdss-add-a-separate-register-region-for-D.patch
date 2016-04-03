@@ -1,0 +1,51 @@
+From c99e584a92d72dca65fcb78b8a725454caf63e3c Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 15 Mar 2016 12:02:24 +0800
+Subject: [PATCH 07/36] nx503a: msm: mdss: add a separate register region for
+ DSI PHY
+
+cherry-pick from c11c9949bfc9ccafefe2a4eaedbda501e38a018a
+
+The DSI PHY register offset from the controller base is
+different for different targets. So, add a separate register
+region for DSI PHY in the device tree. This register base and
+offset will be used to access the DSI PHY registers. Also
+change the register offsets which are dependent on the
+controller base address.
+---
+ arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi b/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
+index a35ad91..1615de6 100644
+--- a/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
+@@ -122,9 +122,10 @@
+ 		compatible = "qcom,mdss-dsi-ctrl";
+ 		label = "MDSS DSI CTRL->0";
+ 		cell-index = <0>;
+-		reg = 	<0xfd922800 0x600>,
++		reg = 	<0xfd922800 0x1f8>,
++			<0xfd922b00 0x2b0>,
+ 			<0xfdf30000 0x108>;
+-		reg-names = "dsi_phys", "mmss_misc_phys";
++		reg-names = "dsi_ctrl", "dsi_phy", "mmss_misc_phys";
+ 		vdd-supply = <&pm8941_l22>;
+ 		vddio-supply = <&pm8941_l12>;
+ 		vdda-supply = <&pm8941_l2>;
+@@ -181,9 +182,10 @@
+ 		compatible = "qcom,mdss-dsi-ctrl";
+ 		label = "MDSS DSI CTRL->1";
+ 		cell-index = <1>;
+-		reg = 	<0xfd922e00 0x600>,
++		reg = 	<0xfd922e00 0x1f8>,
++			<0xfd923100 0x2b0>,
+ 			<0xfdf30000 0x108>;
+-		reg-names = "dsi_phys", "mmss_misc_phys";
++		reg-names = "dsi_ctrl", "dsi_phy", "mmss_misc_phys";
+ 		vdd-supply = <&pm8941_l22>;
+ 		vddio-supply = <&pm8941_l12>;
+ 		vdda-supply = <&pm8941_l2>;
+-- 
+1.9.1
+

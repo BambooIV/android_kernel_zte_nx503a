@@ -1,0 +1,32 @@
+From eebc02673ecc5728e11d2aa5bc893b69e8d9339c Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 21:07:02 +0800
+Subject: [PATCH 33/50] nx503a: ARM: dts: msm: Update adsp heap memory size
+
+cherry-pick from 3737edfa9b071782fd203b4a2960317ea1dae72d
+
+Adding 2M additional to adsp heap size to support
+hevc adaptive playback cases. Otherwise, adaptive CTS
+test cases can lead to ADSP crash.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm8974.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974.dtsi b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+index 90190af..7f57af0 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+@@ -77,7 +77,7 @@
+ 
+ 		adsp_mem: adsp_region {
+ 			linux,contiguous-region;
+-			reg = <0 0x3F00000>;
++			reg = <0 0x4100000>;
+ 			label = "adsp_mem";
+ 		};
+ 
+-- 
+1.9.1
+

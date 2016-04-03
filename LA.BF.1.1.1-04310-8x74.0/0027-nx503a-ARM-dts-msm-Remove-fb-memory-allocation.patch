@@ -1,0 +1,31 @@
+From bc2ac84d599ffecc1e8ebaa42f7dd88178e4db66 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 15 Mar 2016 12:56:50 +0800
+Subject: [PATCH 27/36] nx503a: ARM: dts: msm: Remove fb memory allocation
+
+cherry-pick from 8360c416dc5bdabbfcc22a209eb9cc6c47be99ac
+
+Remove frame buffer contiguous memory allocation
+at boot time as this memory is no longer being used.
+[nabrah@codeaurora.org: Modified parent gerrit
+change to adapt to kk_3.5 branch (3.4 kernel)].
+---
+ arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi b/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
+index fe40056..af2ccfb 100644
+--- a/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
+@@ -103,8 +103,6 @@
+ 		mdss_fb0: qcom,mdss_fb_primary {
+ 			cell-index = <0>;
+ 			compatible = "qcom,mdss-fb";
+-			qcom,memory-reservation-type = "EBI1";
+-			qcom,memory-reservation-size = <0xFF0000>;
+ 			qcom,memblock-reserve = <0x03200000 0x01E00000>;
+ 		};
+ 
+-- 
+1.9.1
+

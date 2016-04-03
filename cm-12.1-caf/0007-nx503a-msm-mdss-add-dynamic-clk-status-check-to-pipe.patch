@@ -1,0 +1,41 @@
+From 76d51d6a3c6acff8b6448a90b98ee77190e8bb96 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 15:22:02 +0800
+Subject: [PATCH 07/50] nx503a: msm: mdss: add dynamic clk status check to pipe
+ idle verification
+
+cherry-pick from 6290618586da63c2fd4b58cfd2420484b31baaad
+
+Dynamic clk status of pipe can indicate if that pipe is active or not.
+This status in conjunction VBIF halt status of pipe describes the idle
+state of the pipe. Add support to parse necessary offsets from DT and
+use them to find idle state of the pipe.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi b/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
+index 59746a1..a35ad91 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
+@@ -50,6 +50,15 @@
+ 		qcom,mdss-pipe-rgb-xin-id = <1 5 9>;
+ 		qcom,mdss-pipe-dma-xin-id = <2 10>;
+ 
++		qcom,mdss-pipe-vig-clk-ctrl-offsets = <0x3AC 0 0>,
++						      <0x3B4 0 0>,
++						      <0x3BC 0 0>;
++		qcom,mdss-pipe-rgb-clk-ctrl-offsets = <0x3AC 4 8>,
++						      <0x3B4 4 8>,
++						      <0x3BC 4 8>;
++		qcom,mdss-pipe-dma-clk-ctrl-offsets = <0x3AC 8 12>,
++						      <0x3B4 8 12>;
++
+ 		qcom,mdss-smp-data = <22 4096>;
+ 
+ 		qcom,mdss-ctl-off = <0x00000600 0x00000700 0x00000800
+-- 
+1.9.1
+

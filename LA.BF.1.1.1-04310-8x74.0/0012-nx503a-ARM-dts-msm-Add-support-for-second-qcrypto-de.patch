@@ -1,0 +1,73 @@
+From 152dd703b05382eaf7f84034197a7e5524d83fd1 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 15 Mar 2016 12:17:26 +0800
+Subject: [PATCH 12/36] nx503a: ARM: dts: msm: Add support for second qcrypto
+ device for 8974
+
+cherry-pick from 8665a2b366950ae6f93c0ec634f3aeed6ba43450
+
+Add entry for a second qcrypto instance that uses a different
+pipe pair for data transfer to/from CE hardware. This will allow
+clients to use different PIPE key register set intended for a
+different use case.
+---
+ arch/arm/boot/dts/NX503A/msm8974.dtsi | 27 ++++++++++++++++++++++++---
+ 1 file changed, 24 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974.dtsi b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+index 3863a98..2bf58fb 100644
+--- a/arch/arm/boot/dts/NX503A/msm8974.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+@@ -2202,7 +2202,7 @@
+         qcom,qcedev@fd440000 {
+ 		compatible = "qcom,qcedev";
+ 		reg = <0xfd440000 0x20000>,
+-		      <0xfd444000 0x8000>;
++		      <0xfd444000 0x1b000>;
+ 		reg-names = "crypto-base","crypto-bam-base";
+ 		interrupts = <0 236 0>;
+ 		qcom,bam-pipe-pair = <1>;
+@@ -2216,10 +2216,10 @@
+ 				<56 512 3936000 393600>;
+ 	};
+ 
+-        qcom,qcrypto@fd444000 {
++        qcom,qcrypto@fd440000 {
+ 		compatible = "qcom,qcrypto";
+ 		reg = <0xfd440000 0x20000>,
+-		      <0xfd444000 0x8000>;
++		      <0xfd444000 0x1b000>;
+ 		reg-names = "crypto-base","crypto-bam-base";
+ 		interrupts = <0 236 0>;
+ 		qcom,bam-pipe-pair = <2>;
+@@ -2237,6 +2237,27 @@
+ 				<56 512 3936000 393600>;
+ 	};
+ 
++        qcom,qcrypto1@fd440000 {
++		compatible = "qcom,qcrypto";
++		reg = <0xfd440000 0x20000>,
++		      <0xfd444000 0x1b000>;
++		reg-names = "crypto-base","crypto-bam-base";
++		interrupts = <0 236 0>;
++		qcom,bam-pipe-pair = <0>;
++		qcom,ce-hw-instance = <1>;
++		qcom,ce-device = <1>;
++		qcom,clk-mgmt-sus-res;
++                qcom,msm-bus,name = "qcrypto-noc";
++		qcom,msm-bus,num-cases = <2>;
++		qcom,msm-bus,num-paths = <1>;
++		qcom,use-sw-aes-cbc-ecb-ctr-algo;
++		qcom,use-sw-aes-xts-algo;
++		qcom,use-sw-ahash-algo;
++		qcom,msm-bus,vectors-KBps =
++				<56 512 0 0>,
++				<56 512 3936000 393600>;
++	};
++
+ 	qcom,usbbam@f9304000 {
+ 		compatible = "qcom,usb-bam-msm";
+ 		reg = <0xf9304000 0x5000>,
+-- 
+1.9.1
+

@@ -1,0 +1,39 @@
+From 74bcba3fee45b711fef73916f8dab20735cb4c41 Mon Sep 17 00:00:00 2001
+From: Jurica Vukadin <u.ra604@gmail.com>
+Date: Tue, 20 Jan 2015 18:53:03 +0100
+Subject: [PATCH 49/50] Revert "msm: vidc: Update vb2q buffer sizes"
+
+This reverts commit c9d4589660fa64762efe216f5b56cacf9ade0eb8.
+
+Change-Id: I5ac010ef4046ab140728d57451cc591182a013ea
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ drivers/media/platform/msm/vidc/msm_venc.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/media/platform/msm/vidc/msm_venc.c b/drivers/media/platform/msm/vidc/msm_venc.c
+index d439e8b..91e1b51 100644
+--- a/drivers/media/platform/msm/vidc/msm_venc.c
++++ b/drivers/media/platform/msm/vidc/msm_venc.c
+@@ -2747,16 +2747,8 @@ int msm_venc_g_fmt(struct msm_vidc_inst *inst, struct v4l2_format *f)
+ 				buff_req_buffer->buffer_size : 0;
+ 		}
+ 		for (i = 0; i < fmt->num_planes; ++i) {
+-			if (f->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) {
+-				inst->bufq[OUTPUT_PORT].vb2_bufq.
+-				plane_sizes[i] =
+-				f->fmt.pix_mp.plane_fmt[i].sizeimage;
+-			} else if (f->type ==
+-				V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) {
+-				inst->bufq[CAPTURE_PORT].vb2_bufq.
+-				plane_sizes[i] =
+-				f->fmt.pix_mp.plane_fmt[i].sizeimage;
+-			}
++			inst->bufq[CAPTURE_PORT].vb2_bufq.plane_sizes[i] =
++			f->fmt.pix_mp.plane_fmt[i].sizeimage;
+ 		}
+ 	} else {
+ 		dprintk(VIDC_ERR,
+-- 
+1.9.1
+

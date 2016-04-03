@@ -1,0 +1,32 @@
+From f1d4b56cd152c953ab7891afee5cb8abaf9c5558 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 20:47:12 +0800
+Subject: [PATCH 25/50] nx503a: ARM: dts: msm: Enable thermal reset feature for
+ MSM8974
+
+cherry-pick from a4b5bac31402946ef18be1a45e52e2d1d9184a41
+
+Enable thermal reset feature for MSM8974, where the KTM does
+a secure watchdog bite when the temperature of tsens reaches
+the preset threshold.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm8974.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974.dtsi b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+index 360a707..648ee44 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+@@ -2323,6 +2323,7 @@
+ 		qcom,poll-ms = <250>;
+ 		qcom,limit-temp = <60>;
+ 		qcom,temp-hysteresis = <10>;
++		qcom,therm-reset-temp = <115>;
+ 		qcom,freq-step = <2>;
+ 		qcom,freq-control-mask = <0xf>;
+ 		qcom,core-limit-temp = <80>;
+-- 
+1.9.1
+

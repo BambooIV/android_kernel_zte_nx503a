@@ -1,0 +1,40 @@
+From 305e3734ecb42d77a3169160b48b5bd9312c2684 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 20:59:09 +0800
+Subject: [PATCH 30/50] nx503a: ARM: msm: Clean up sensor ADSP driver; OCMEM is
+ no longer used
+
+cherry-pick from 5c8255949c0f1c0c4551f526cf6e5439e1a4196f
+
+OCMEM is no longer used, hence, removing OCMEM related code from the
+ADSP driver.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm8974.dtsi | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974.dtsi b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+index d6ab244..62b35e7 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2012-2015, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -1970,10 +1970,6 @@
+ 
+ 	qcom,msm-adsp-sensors {
+ 		compatible = "qcom,msm-adsp-sensors";
+-		qcom,src-id = <11>;
+-		qcom,dst-id = <604>;
+-		qcom,ab = <32505856>;
+-		qcom,ib = <32505856>;
+ 	};
+ 
+ 	qcom,mss@fc880000 {
+-- 
+1.9.1
+

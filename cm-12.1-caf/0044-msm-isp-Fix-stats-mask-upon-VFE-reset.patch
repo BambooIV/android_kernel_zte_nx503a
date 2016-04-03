@@ -1,0 +1,53 @@
+From 80ebe7cb1d445a0cfb496e2d978466e4c52b330d Mon Sep 17 00:00:00 2001
+From: Abhishek Kondaveeti <akondave@codeaurora.org>
+Date: Wed, 4 Jun 2014 15:56:00 +0530
+Subject: [PATCH 44/50] msm: isp: Fix stats mask upon VFE reset.
+
+When streamoff is issued, a HARD reset is done for VFE. This
+causes the stats register to be reset to zero. It needs to be
+properly initialized with the last used mask upon init.
+
+Change-Id: I5e2fcab0358e63272f40458862f4cf6a7d3bb4bc
+Signed-off-by: Abhishek Kondaveeti <akondave@codeaurora.org>
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ drivers/media/platform/msm/camera_v2/isp/msm_isp.h   | 1 +
+ drivers/media/platform/msm/camera_v2/isp/msm_isp40.c | 3 +++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/drivers/media/platform/msm/camera_v2/isp/msm_isp.h b/drivers/media/platform/msm/camera_v2/isp/msm_isp.h
+index d33d34b..500cd0a 100644
+--- a/drivers/media/platform/msm/camera_v2/isp/msm_isp.h
++++ b/drivers/media/platform/msm/camera_v2/isp/msm_isp.h
+@@ -381,6 +381,7 @@ struct msm_vfe_stats_shared_data {
+ 	atomic_t stats_comp_mask;
+ 	uint16_t stream_handle_cnt;
+ 	atomic_t stats_update;
++	uint32_t stats_mask;
+ };
+ 
+ struct msm_vfe_tasklet_queue_cmd {
+diff --git a/drivers/media/platform/msm/camera_v2/isp/msm_isp40.c b/drivers/media/platform/msm/camera_v2/isp/msm_isp40.c
+index 63b81c5..365de76 100644
+--- a/drivers/media/platform/msm/camera_v2/isp/msm_isp40.c
++++ b/drivers/media/platform/msm/camera_v2/isp/msm_isp40.c
+@@ -350,6 +350,8 @@ static void msm_vfe40_init_hardware_reg(struct vfe_device *vfe_dev)
+ 	msm_camera_io_w_mb(0xFEFFFFFF, vfe_dev->vfe_base + 0x2C);
+ 	msm_camera_io_w(0xFFFFFFFF, vfe_dev->vfe_base + 0x30);
+ 	msm_camera_io_w_mb(0xFEFFFFFF, vfe_dev->vfe_base + 0x34);
++	msm_camera_io_w(vfe_dev->stats_data.stats_mask,
++		vfe_dev->vfe_base + 0x44);
+ }
+ 
+ static void msm_vfe40_process_reset_irq(struct vfe_device *vfe_dev,
+@@ -1199,6 +1201,7 @@ static void msm_vfe40_stats_cfg_comp_mask(struct vfe_device *vfe_dev,
+ 	else
+ 		comp_mask &= ~stats_mask;
+ 	msm_camera_io_w(comp_mask << 16, vfe_dev->vfe_base + 0x44);
++	vfe_dev->stats_data.stats_mask = (comp_mask << 16);
+ }
+ 
+ static void msm_vfe40_stats_cfg_wm_irq_mask(
+-- 
+1.9.1
+

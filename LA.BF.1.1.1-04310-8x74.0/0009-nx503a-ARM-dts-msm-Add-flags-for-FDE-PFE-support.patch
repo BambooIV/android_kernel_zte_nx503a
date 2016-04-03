@@ -1,0 +1,41 @@
+From 9b74be0029ab101b19a3423b1eee84399daf1f22 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 15 Mar 2016 12:08:05 +0800
+Subject: [PATCH 09/36] nx503a: ARM: dts: msm: Add flags for FDE/PFE support
+
+cherry-pick from 42c9085d6e0387107e058483c7a9b473235c7689
+
+Add following flags
+- support-fde
+- support-pfe
+
+These flags are needed to be set on targets that support
+FDE (full disk encryption) and PFE (per file encryption),
+respectively.
+---
+ arch/arm/boot/dts/NX503A/msm8974.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974.dtsi b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+index 6856672..633acc0 100644
+--- a/arch/arm/boot/dts/NX503A/msm8974.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974.dtsi
+@@ -2097,12 +2097,15 @@
+ 		reg = <0x7b00000 0x500000>;
+ 		reg-names = "secapp-region";
+ 		qcom,disk-encrypt-pipe-pair = <2>;
++		qcom,file-encrypt-pipe-pair = <0>;
+ 		qcom,hlos-ce-hw-instance = <1>;
+ 		qcom,qsee-ce-hw-instance = <0>;
+ 		qcom,support-bus-scaling;
+ 		qcom,msm-bus,name = "qseecom-noc";
+ 		qcom,msm-bus,num-cases = <4>;
+ 		qcom,msm-bus,num-paths = <1>;
++		qcom,support-fde;
++		qcom,support-pfe;
+ 		qcom,msm-bus,vectors-KBps =
+ 				<55 512 0 0>,
+ 				<55 512 0 0>,
+-- 
+1.9.1
+

@@ -1,0 +1,56 @@
+From 3306ca18ed24ec39ec858f45e746e224b3dbeb4c Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 20:34:28 +0800
+Subject: [PATCH 21/50] nx503a: ARM: dts: msm: Add flash_wa regulator support
+ for msm8974 flash
+
+cherry-pick from 12c49b1a95ba89c0958f6638ed0b5a3259260362
+
+Add the DT property flash-wa-supply to flash device node and assign
+pm8941_chg_chgr regulator to it. This enables the flash_wa regulator
+support for the msm8974 flash driver.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm-pm8941.dtsi        | 4 ++--
+ arch/arm/boot/dts/NX503A/msm8974-regulator.dtsi | 4 ++++
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm-pm8941.dtsi b/arch/arm/boot/dts/NX503A/msm-pm8941.dtsi
+index 3164c1f..3f268c5 100755
+--- a/arch/arm/boot/dts/NX503A/msm-pm8941.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm-pm8941.dtsi
+@@ -245,9 +245,8 @@
+ 		qcom,chg-iadc = <&pm8941_iadc>;
+ 		qcom,chg-adc_tm = <&pm8941_adc_tm>;
+ 		qcom,ibat-calibration-enabled;
+-
+  					 
+-		qcom,chgr@1000 {
++		pm8941_chg_chgr: qcom,chgr@1000 {
+ 			status = "disabled";
+ 			reg = <0x1000 0x100>;
+ 			interrupts =	<0x0 0x10 0x0>,
+@@ -1329,6 +1328,7 @@ CONFIG_ZTEMT_NX503A_CHARGE
+ 		label = "flash";
+ 		flash-boost-supply = <&pm8941_chg_boost>;
+ 		torch-boost-supply = <&pm8941_boost>;
++		flash-wa-supply = <&pm8941_chg_chgr>;
+ 	};
+ 
+ 	qcom,leds@d400 {
+diff --git a/arch/arm/boot/dts/NX503A/msm8974-regulator.dtsi b/arch/arm/boot/dts/NX503A/msm8974-regulator.dtsi
+index 55da718..9ef02a6 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974-regulator.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974-regulator.dtsi
+@@ -569,3 +569,7 @@
+ &pm8941_chg_otg {
+ 	regulator-name = "8941_smbb_otg";
+ };
++
++&pm8941_chg_chgr {
++	regulator-name = "flash_wa";
++};
+-- 
+1.9.1
+

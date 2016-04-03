@@ -1,0 +1,37 @@
+From a0d85436d8805da2dea8543f83be8196f5884b2a Mon Sep 17 00:00:00 2001
+From: Shivaramraje Nimbalkar Joshi <nimbalkars@codeaurora.org>
+Date: Tue, 13 May 2014 11:02:03 -0700
+Subject: [PATCH 47/50] msm: camera: fix camera crash after daemon reboot
+
+The camera crash occured because the eeprom memory
+was freed after first eeprom read from userspace
+leading to a non functional camera if the camera
+daemon reboots.
+
+Change-Id: I74517a47a6c3832b7bfc5f020b502ff13415f9fb
+Signed-off-by: Shivaramraje Nimbalkar Joshi <nimbalkars@codeaurora.org>
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ drivers/media/platform/msm/camera_v2/sensor/eeprom/msm_eeprom.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/drivers/media/platform/msm/camera_v2/sensor/eeprom/msm_eeprom.c b/drivers/media/platform/msm/camera_v2/sensor/eeprom/msm_eeprom.c
+index 7649a40..059780d 100755
+--- a/drivers/media/platform/msm/camera_v2/sensor/eeprom/msm_eeprom.c
++++ b/drivers/media/platform/msm/camera_v2/sensor/eeprom/msm_eeprom.c
+@@ -131,12 +131,6 @@ static int eeprom_config_read_cal_data(struct msm_eeprom_ctrl_t *e_ctrl,
+ 		e_ctrl->cal_data.mapdata,
+ 		cdata->cfg.read_data.num_bytes);
+ 
+-	/* should only be called once.  free kernel resource */
+-	if (!rc) {
+-		kfree(e_ctrl->cal_data.mapdata);
+-		kfree(e_ctrl->cal_data.map);
+-		memset(&e_ctrl->cal_data, 0, sizeof(e_ctrl->cal_data));
+-	}
+ 	return rc;
+ }
+ 
+-- 
+1.9.1
+

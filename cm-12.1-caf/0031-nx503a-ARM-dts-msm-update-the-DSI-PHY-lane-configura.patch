@@ -1,0 +1,57 @@
+From cbc6c2f3de28b3b7b74fa02af34f8fb37cc05fa7 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 21:02:45 +0800
+Subject: [PATCH 31/50] nx503a: ARM: dts: msm: update the DSI PHY lane
+ configuration settings
+
+cherry-pick from 30ab05acb22ebbf642a47eb3225ad0b6a8cac79f
+
+With the present DSI lane configuration, there is slight delay
+observed on data transfer between different data lanes. Update
+the DSI PHY lane configuration with the recommended settings from
+the h/w team to fix this issue.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi b/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
+index af2ccfb..3f51e05 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974-mdss.dtsi
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2012-2015, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -138,9 +138,9 @@
+ 		qcom,platform-bist-ctrl = [00 00 b1 ff 00 00];
+ 		qcom,platform-regulator-settings = [07 09 03 00 20 00 01];
+ 		qcom,platform-lane-config = [00 00 00 00 00 00 00 01 97
+-			00 00 00 00 05 00 00 01 97
+-			00 00 00 00 0a 00 00 01 97
+-			00 00 00 00 0f 00 00 01 97
++			00 00 00 00 00 00 00 01 97
++			00 00 00 00 00 00 00 01 97
++			00 00 00 00 00 00 00 01 97
+ 			00 c0 00 00 00 00 00 01 bb];
+ 		qcom,platform-supply-entry1 {
+ 				qcom,supply-name = "vdd";
+@@ -194,9 +194,9 @@
+ 		qcom,platform-bist-ctrl = [00 00 b1 ff 00 00];
+ 		qcom,platform-regulator-settings = [07 09 03 00 20 00 01];
+ 		qcom,platform-lane-config = [00 00 00 00 00 00 00 01 97
+-			00 00 00 00 05 00 00 01 97
+-			00 00 00 00 0a 00 00 01 97
+-			00 00 00 00 0f 00 00 01 97
++			00 00 00 00 00 00 00 01 97
++			00 00 00 00 00 00 00 01 97
++			00 00 00 00 00 00 00 01 97
+ 			00 c0 00 00 00 00 00 01 bb];
+ 		qcom,platform-supply-entry1 {
+ 				qcom,supply-name = "vdd";
+-- 
+1.9.1
+

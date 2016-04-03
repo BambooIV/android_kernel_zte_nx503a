@@ -1,0 +1,402 @@
+From 645eb17531a6cb4166ad90a5e34a76c896fad992 Mon Sep 17 00:00:00 2001
+From: BambooIV <ningdisheng@gmail.com>
+Date: Tue, 2 Feb 2016 23:49:17 +0800
+Subject: [PATCH 40/50] Revert "nx503a: ARM:dts:msm:8974 update generic cam
+ entries"
+
+This reverts commit 59cc68c0f9707c4b353bfa732f3bb3534caacc40.
+
+Signed-off-by: BambooIV <ningdisheng@gmail.com>
+---
+ .../boot/dts/NX503A/msm8974-camera-sensor-mtp.dtsi | 208 ++++++++++++++++++---
+ arch/arm/boot/dts/NX503A/msm8974-v2.dtsi           |   8 +-
+ arch/arm/mach-msm/board/clock-8974-NX503A.c        |  28 ++-
+ drivers/media/platform/msm/camera_v2/Kconfig       |  17 ++
+ 4 files changed, 231 insertions(+), 30 deletions(-)
+
+diff --git a/arch/arm/boot/dts/NX503A/msm8974-camera-sensor-mtp.dtsi b/arch/arm/boot/dts/NX503A/msm8974-camera-sensor-mtp.dtsi
+index bfb76a8..a4759ff 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974-camera-sensor-mtp.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974-camera-sensor-mtp.dtsi
+@@ -43,6 +43,170 @@
+ 		compatible = "qcom,actuator";
+ 		qcom,cci-master = <0>;
+ 	};
++	qcom,camera@6e {
++		compatible = "qcom,s5k3l1yx";
++		reg = <0x6e>;
++		qcom,slave-id = <0x6e 0x0 0x3121>;
++		qcom,csiphy-sd-index = <0>;
++		qcom,csid-sd-index = <0>;
++		qcom,actuator-src = <&actuator0>;
++		qcom,led-flash-src = <&led_flash0>;
++		qcom,mount-angle = <90>;
++		qcom,sensor-name = "s5k3l1yx";
++		cam_vdig-supply = <&pm8941_l3>;
++		cam_vana-supply = <&pm8941_l17>;
++		cam_vio-supply = <&pm8941_lvs3>;
++		cam_vaf-supply = <&pm8941_l23>;
++		qcom,cam-vreg-name = "cam_vdig", "cam_vio", "cam_vana",
++				     "cam_vaf";
++		qcom,cam-vreg-type = <0 1 0 0>;
++		qcom,cam-vreg-min-voltage = <1225000 0 2850000 3000000>;
++		qcom,cam-vreg-max-voltage = <1225000 0 2850000 3000000>;
++		qcom,cam-vreg-op-mode = <105000 0 80000 100000>;
++		qcom,gpio-no-mux = <0>;
++		gpios = <&msmgpio 15 0>,
++			<&msmgpio 90 0>,
++			<&msmgpio 89 0>;
++		qcom,gpio-reset = <1>;
++		qcom,gpio-standby = <2>;
++		qcom,gpio-req-tbl-num = <0 1 2>;
++		qcom,gpio-req-tbl-flags = <1 0 0>;
++		qcom,gpio-req-tbl-label = "CAMIF_MCLK",
++					  "CAM_RESET1",
++					  "CAM_STANDBY";
++		qcom,gpio-set-tbl-num = <1 1>;
++		qcom,gpio-set-tbl-flags = <0 2>;
++		qcom,gpio-set-tbl-delay = <1000 30000>;
++		qcom,csi-lane-assign = <0x4320>;
++		qcom,csi-lane-mask = <0x1F>;
++		qcom,sensor-position = <0>;
++		qcom,sensor-mode = <1>;
++		qcom,cci-master = <0>;
++		status = "ok";
++	};
++
++    qcom,camera@20 {
++		compatible = "qcom,imx135_z5s";
++		reg = <0x20>;
++		qcom,slave-id = <0x20 0x0016 0x0135>;
++		qcom,csiphy-sd-index = <0>;
++		qcom,csid-sd-index = <0>;
++		qcom,mount-angle = <90>;
++		qcom,sensor-name = "imx135_z5s";
++		qcom,actuator-src = <&actuator0>;
++		qcom,led-flash-src = <&led_flash0>;
++		cam_vdig-supply = <&pm8941_l3>;
++		cam_vana-supply = <&pm8941_l23>;
++		cam_vio-supply = <&pm8941_lvs2>;
++		cam_vaf-supply = <&pm8941_l19>;
++		qcom,cam-vreg-name = "cam_vdig", "cam_vio", "cam_vana",
++				     "cam_vaf";
++		qcom,cam-vreg-type = <0 1 0 0>;
++		qcom,cam-vreg-min-voltage = <1050000 0 2800000 2800000>;
++		qcom,cam-vreg-max-voltage = <1050000 0 2800000 2800000>;
++		qcom,cam-vreg-op-mode = <105000 0 80000 400000>;
++		qcom,gpio-no-mux = <0>;
++		gpios = <&msmgpio 15 0>,
++			<&msmgpio 90 0>,
++			<&msmgpio 89 0>;
++		qcom,gpio-reset = <1>;
++		qcom,gpio-standby = <2>;
++		qcom,gpio-req-tbl-num = <0 1 2>;
++		qcom,gpio-req-tbl-flags = <1 0 0>;
++		qcom,gpio-req-tbl-label = "CAMIF_MCLK",
++					  "CAM_RESET1",
++					  "CAM_STANDBY";
++		qcom,gpio-set-tbl-num = <1 1>;
++		qcom,gpio-set-tbl-flags = <0 2>;
++		qcom,gpio-set-tbl-delay = <1000 30000>;
++		qcom,csi-lane-assign = <0x4320>;
++		qcom,csi-lane-mask = <0x1F>;
++		qcom,sensor-position = <0>;
++		qcom,sensor-mode = <0>;
++	        qcom,sensor-type = <0>;
++		qcom,cci-master = <0>;
++		status = "ok";
++	};
++
++       qcom,camera@200 {
++		compatible = "qcom,imx135_z5s_069";
++		reg = <0x200>;
++		qcom,slave-id = <0x20 0x0016 0x0135>;
++		qcom,csiphy-sd-index = <0>;
++		qcom,csid-sd-index = <0>;
++		qcom,led-flash-src = <&led_flash0>;
++		qcom,mount-angle = <90>;
++		qcom,sensor-name = "imx135_z5s_069";
++		qcom,vdd-cx-supply = <&pm8841_s2>;
++		qcom,vdd-cx-name = "qcom,vdd-cx";
++		qcom,actuator-src = <&actuator8>;
++		cam_vdig-supply = <&pm8941_l3>;
++		cam_vana-supply = <&pm8941_l23>;
++		cam_vio-supply = <&pm8941_lvs2>;
++		cam_vaf-supply = <&pm8941_l19>;
++		qcom,cam-vreg-name = "cam_vdig", "cam_vio", "cam_vana",
++				     "cam_vaf";
++		qcom,cam-vreg-type = <0 1 0 0>;
++		qcom,cam-vreg-min-voltage = <1050000 0 2800000 2800000>;
++		qcom,cam-vreg-max-voltage = <1050000 0 2800000 2800000>;
++		qcom,cam-vreg-op-mode = <105000 0 80000 400000>;
++		qcom,gpio-no-mux = <0>;
++		gpios = <&msmgpio 15 0>,
++			<&msmgpio 90 0>,
++			<&msmgpio 89 0>;
++		qcom,gpio-reset = <1>;
++		qcom,gpio-standby = <2>;
++		qcom,gpio-req-tbl-num = <0 1 2>;
++		qcom,gpio-req-tbl-flags = <1 0 0>;
++		qcom,gpio-req-tbl-label = "CAMIF_MCLK",
++					  "CAM_RESET1",
++					  "CAM_STANDBY";
++		qcom,gpio-set-tbl-num = <1 1>;
++		qcom,gpio-set-tbl-flags = <0 2>;
++		qcom,gpio-set-tbl-delay = <1000 30000>;
++		qcom,csi-lane-assign = <0x4320>;
++		qcom,csi-lane-mask = <0x1F>;
++		qcom,sensor-position = <0>;
++		qcom,sensor-mode = <0>;
++	        qcom,sensor-type = <0>;
++		qcom,cci-master = <0>;
++		status = "ok";
++	};
++
++	qcom,camera@6c {
++		compatible = "qcom,ov2720";
++		reg = <0x6c>;
++		qcom,slave-id = <0x6c 0x300A 0x2720>;
++		qcom,csiphy-sd-index = <2>;
++		qcom,csid-sd-index = <2>;
++		qcom,mount-angle = <90>;
++		qcom,sensor-name = "ov2720";
++		cam_vdig-supply = <&pm8941_l3>;
++		cam_vana-supply = <&pm8941_l17>;
++		cam_vio-supply = <&pm8941_lvs3>;
++		qcom,cam-vreg-name = "cam_vdig", "cam_vana", "cam_vio";
++		qcom,cam-vreg-type = <0 0 1>;
++		qcom,cam-vreg-min-voltage = <1225000 2850000 0>;
++		qcom,cam-vreg-max-voltage = <1225000 2850000 0>;
++		qcom,cam-vreg-op-mode = <105000 80000 0>;
++		qcom,gpio-no-mux = <0>;
++		gpios = <&msmgpio 17 0>,
++			<&msmgpio 18 0>;
++		qcom,gpio-reset = <1>;
++		qcom,gpio-req-tbl-num = <0 1>;
++		qcom,gpio-req-tbl-flags = <1 0>;
++		qcom,gpio-req-tbl-label = "CAMIF_MCLK",
++					  "CAM_RESET1";
++		qcom,gpio-set-tbl-num = <1 1>;
++		qcom,gpio-set-tbl-flags = <0 2>;
++		qcom,gpio-set-tbl-delay = <1000 4000>;
++		qcom,csi-lane-assign = <0x4320>;
++		qcom,csi-lane-mask = <0x7>;
++		qcom,sensor-position = <1>;
++		qcom,sensor-mode = <1>;
++		qcom,cci-master = <1>;
++		status = "ok";
++	};
+ 
+ 	qcom,camera@90 {
+ 		compatible = "qcom,mt9m114";
+@@ -77,7 +241,6 @@
+ 		qcom,sensor-mode = <1>;
+ 		qcom,cci-master = <0>;
+ 	};
+-
+ 	qcom,camera@0 {
+ 		cell-index = <0>;
+ 		compatible = "qcom,camera";
+@@ -87,6 +250,8 @@
+ 		qcom,mount-angle = <90>;
+ 		qcom,actuator-src = <&actuator0>;
+ 		qcom,led-flash-src = <&led_flash0>;
++		qcom,vdd-cx-supply = <&pm8841_s2>;
++		qcom,vdd-cx-name = "qcom,vdd-cx";
+ 		cam_vdig-supply = <&pm8941_l3>;
+ 		cam_vana-supply = <&pm8941_l17>;
+ 		cam_vio-supply = <&pm8941_lvs3>;
+@@ -97,7 +262,6 @@
+ 		qcom,cam-vreg-min-voltage = <1225000 0 2850000 3000000>;
+ 		qcom,cam-vreg-max-voltage = <1225000 0 2850000 3000000>;
+ 		qcom,cam-vreg-op-mode = <105000 0 80000 100000>;
+-		qcom,gpio-no-mux = <0>;
+ 		gpios = <&msmgpio 15 0>,
+ 			<&msmgpio 90 0>,
+ 			<&msmgpio 89 0>;
+@@ -105,9 +269,9 @@
+ 		qcom,gpio-standby = <2>;
+ 		qcom,gpio-req-tbl-num = <0 1 2>;
+ 		qcom,gpio-req-tbl-flags = <1 0 0>;
+-		qcom,gpio-req-tbl-label = "CAMIF_MCLK0",
+-					  "CAM_RESET0",
+-					  "CAM_STANDBY0";
++		qcom,gpio-req-tbl-label = "CAMIF_MCLK",
++					  "CAM_RESET1",
++					  "CAM_STANDBY";
+ 		qcom,sensor-position = <0>;
+ 		qcom,sensor-mode = <0>;
+ 		qcom,cci-master = <0>;
+@@ -119,8 +283,10 @@
+ 		compatible = "qcom,camera";
+ 		reg = <0x1>;
+ 		qcom,csiphy-sd-index = <1>;
+-		qcom,csid-sd-index = <0>;
++		qcom,csid-sd-index = <1>;
+ 		qcom,mount-angle = <90>;
++		qcom,vdd-cx-supply = <&pm8841_s2>;
++		qcom,vdd-cx-name = "qcom,vdd-cx";
+ 		cam_vdig-supply = <&pm8941_l3>;
+ 		cam_vana-supply = <&pm8941_l17>;
+ 		cam_vio-supply = <&pm8941_lvs3>;
+@@ -130,17 +296,14 @@
+ 		qcom,cam-vreg-min-voltage = <1225000 0 2850000 3000000>;
+ 		qcom,cam-vreg-max-voltage = <1225000 0 2850000 3000000>;
+ 		qcom,cam-vreg-op-mode = <105000 0 80000 100000>;
+-		gpios = <&msmgpio 16 0>,
+-			<&msmgpio 92 0>,
+-			<&msmgpio 91 0>;
++		gpios = <&msmgpio 17 0>,
++			<&msmgpio 18 0>;
+ 		qcom,gpio-reset = <1>;
+-		qcom,gpio-standby = <2>;
+-		qcom,gpio-req-tbl-num = <0 1 2>;
+-		qcom,gpio-req-tbl-flags = <1 0 0>;
+-		qcom,gpio-req-tbl-label = "CAMIF_MCLK1",
+-					  "CAM_RESET1",
+-					  "CAM_STANDBY1";
+-		qcom,sensor-position = <0>;
++		qcom,gpio-req-tbl-num = <0 1>;
++		qcom,gpio-req-tbl-flags = <1 0>;
++		qcom,gpio-req-tbl-label = "CAMIF_MCLK",
++					  "CAM_RESET1";
++		qcom,sensor-position = <1>;
+ 		qcom,sensor-mode = <0>;
+ 		qcom,cci-master = <0>;
+ 		status = "ok";
+@@ -163,15 +326,12 @@
+ 		qcom,cam-vreg-op-mode = <105000 80000 0>;
+ 		qcom,gpio-no-mux = <0>;
+ 		gpios = <&msmgpio 17 0>,
+-			<&msmgpio 18 0>,
+-			<&msmgpio 28 0>;
++			<&msmgpio 18 0>;
+ 		qcom,gpio-reset = <1>;
+-		qcom,gpio-standby = <2>;
+-		qcom,gpio-req-tbl-num = <0 1 2>;
+-		qcom,gpio-req-tbl-flags = <1 0 0>;
+-		qcom,gpio-req-tbl-label = "CAMIF_MCLK2",
+-					  "CAM_RESET2",
+-					  "CAM_STANDBY2";
++		qcom,gpio-req-tbl-num = <0 1>;
++		qcom,gpio-req-tbl-flags = <1 0>;
++		qcom,gpio-req-tbl-label = "CAMIF_MCLK",
++					  "CAM_RESET1";
+ 		qcom,sensor-position = <1>;
+ 		qcom,sensor-mode = <0>;
+ 		qcom,cci-master = <1>;
+diff --git a/arch/arm/boot/dts/NX503A/msm8974-v2.dtsi b/arch/arm/boot/dts/NX503A/msm8974-v2.dtsi
+index 247df30..b146092 100755
+--- a/arch/arm/boot/dts/NX503A/msm8974-v2.dtsi
++++ b/arch/arm/boot/dts/NX503A/msm8974-v2.dtsi
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2013-2014, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2013, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -200,17 +200,17 @@
+ 
+ &cci {
+ 
+-	qcom,camera@0 {
++	qcom,camera@6e {
+ 		qcom,vdd-cx-supply = <&pm8841_s2>;
+ 		qcom,vdd-cx-name = "qcom,vdd-cx";
+ 	};
+ 
+-	qcom,camera@1 {
++	qcom,camera@20 {
+ 		qcom,vdd-cx-supply = <&pm8841_s2>;
+ 		qcom,vdd-cx-name = "qcom,vdd-cx";
+ 	};
+ 
+-	qcom,camera@2 {
++	qcom,camera@6c {
+ 		qcom,vdd-cx-supply = <&pm8841_s2>;
+ 		qcom,vdd-cx-name = "qcom,vdd-cx";
+ 	};
+diff --git a/arch/arm/mach-msm/board/clock-8974-NX503A.c b/arch/arm/mach-msm/board/clock-8974-NX503A.c
+index 033e90c..37de722 100755
+--- a/arch/arm/mach-msm/board/clock-8974-NX503A.c
++++ b/arch/arm/mach-msm/board/clock-8974-NX503A.c
+@@ -4871,7 +4871,19 @@ static struct clk_lookup msm_clocks_8974pro_only[] __initdata = {
+ 	CLK_LOOKUP("gpll4", gpll4_clk_src.c, ""),
+ 	CLK_LOOKUP("sleep_clk", gcc_sdcc1_cdccal_sleep_clk.c, "msm_sdcc.1"),
+ 	CLK_LOOKUP("cal_clk", gcc_sdcc1_cdccal_ff_clk.c, "msm_sdcc.1"),
++	CLK_LOOKUP("cam_src_clk", mclk0_clk_src.c, "6e.qcom,camera"),
++	CLK_LOOKUP("cam_src_clk", mclk0_clk_src.c, "20.qcom,camera"),
++	#ifdef CONFIG_IMX135_Z5S_069
++	CLK_LOOKUP("cam_src_clk", mclk0_clk_src.c, "200.qcom,camera"),
++	#endif
++	CLK_LOOKUP("cam_src_clk", mclk2_clk_src.c, "6c.qcom,camera"),
+ 	CLK_LOOKUP("cam_src_clk", mclk1_clk_src.c, "90.qcom,camera"),
++	CLK_LOOKUP("cam_clk", camss_mclk0_clk.c, "6e.qcom,camera"),
++	CLK_LOOKUP("cam_clk", camss_mclk0_clk.c, "20.qcom,camera"),
++	#ifdef CONFIG_IMX135_Z5S_069
++	CLK_LOOKUP("cam_clk", camss_mclk0_clk.c, "200.qcom,camera"),
++	#endif
++	CLK_LOOKUP("cam_clk", camss_mclk2_clk.c, "6c.qcom,camera"),
+ 	CLK_LOOKUP("cam_clk", camss_mclk1_clk.c, "90.qcom,camera"),
+ 	CLK_LOOKUP("cam_src_clk", mclk0_clk_src.c, "0.qcom,camera"),
+ 	CLK_LOOKUP("cam_src_clk", mclk1_clk_src.c, "1.qcom,camera"),
+@@ -4882,14 +4894,26 @@ static struct clk_lookup msm_clocks_8974pro_only[] __initdata = {
+ };
+ 
+ static struct clk_lookup msm_clocks_8974_only[] __initdata = {
++	CLK_LOOKUP("cam_src_clk", mmss_gp0_clk_src.c, "6e.qcom,camera"),
++	CLK_LOOKUP("cam_src_clk", mmss_gp0_clk_src.c, "20.qcom,camera"),
++	#ifdef CONFIG_IMX135_Z5S_069
++       CLK_LOOKUP("cam_src_clk", mmss_gp0_clk_src.c, "200.qcom,camera"),
++       #endif
++	CLK_LOOKUP("cam_src_clk", gp1_clk_src.c, "6c.qcom,camera"),
+ 	CLK_LOOKUP("cam_src_clk", mmss_gp1_clk_src.c, "90.qcom,camera"),
++	CLK_LOOKUP("cam_clk", camss_gp0_clk.c, "6e.qcom,camera"),
++	CLK_LOOKUP("cam_clk", camss_gp0_clk.c, "20.qcom,camera"),
++	#ifdef CONFIG_IMX135_Z5S_069
++	CLK_LOOKUP("cam_clk", camss_gp0_clk.c, "200.qcom,camera"),
++	#endif
++	CLK_LOOKUP("cam_clk", gcc_gp1_clk.c, "6c.qcom,camera"),
+ 	CLK_LOOKUP("cam_clk", camss_gp1_clk.c, "90.qcom,camera"),
+ 	CLK_LOOKUP("cam_src_clk", mmss_gp0_clk_src.c, "0.qcom,camera"),
+-	CLK_LOOKUP("cam_src_clk", mmss_gp1_clk_src.c, "1.qcom,camera"),
+ 	CLK_LOOKUP("cam_src_clk", gp1_clk_src.c, "2.qcom,camera"),
++	CLK_LOOKUP("cam_src_clk", mmss_gp1_clk_src.c, "1.qcom,camera"),
+ 	CLK_LOOKUP("cam_clk", camss_gp0_clk.c, "0.qcom,camera"),
+-	CLK_LOOKUP("cam_clk", camss_gp1_clk.c, "1.qcom,camera"),
+ 	CLK_LOOKUP("cam_clk", gcc_gp1_clk.c, "2.qcom,camera"),
++	CLK_LOOKUP("cam_clk", camss_gp1_clk.c, "1.qcom,camera"),
+ };
+ 
+ static struct clk_lookup msm_clocks_8974_common[] __initdata = {
+diff --git a/drivers/media/platform/msm/camera_v2/Kconfig b/drivers/media/platform/msm/camera_v2/Kconfig
+index cb3c145..2e8cbbe 100755
+--- a/drivers/media/platform/msm/camera_v2/Kconfig
++++ b/drivers/media/platform/msm/camera_v2/Kconfig
+@@ -101,6 +101,23 @@ config MSM_ISPIF_V1
+           of any CID of MSM_CSI22_HEADER can be routed to of pixel
+           or raw data interface in VFE.
+ 
++config IMX135_Z5S
++	bool "Sensor IMX135_Z5S (BAYER 12M)"
++	depends on MSMB_CAMERA
++	---help---
++		Sony 12 MP Bayer Sensor with auto focus, uses
++		4 mipi lanes, preview config = 2104 x 1560 at 49 fps,
++		snapshot config = 4208 x 3120 at 24 fps,
++		Video HDR support.
++config IMX135_Z5S_069
++	bool "Sensor IMX135_Z5S (BAYER 12M)"
++	depends on MSMB_CAMERA
++	---help---
++		Sony 12 MP Bayer Sensor with auto focus, uses
++		4 mipi lanes, preview config = 2104 x 1560 at 49 fps,
++		snapshot config = 4208 x 3120 at 24 fps,
++		Video HDR support.
++
+ config IMX134
+ 	bool "Sensor IMX134 (BAYER 8M)"
+ 	depends on MSMB_CAMERA
+-- 
+1.9.1
+
