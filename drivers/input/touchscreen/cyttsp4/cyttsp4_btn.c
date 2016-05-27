@@ -42,6 +42,8 @@
 #include <linux/pm_runtime.h>
 #include <linux/slab.h>
 #include <linux/workqueue.h>
+#include <linux/proc_fs.h>
+#include <asm/uaccess.h>
 
 #include "cyttsp4_btn.h"
 #include "cyttsp4_core.h"
@@ -60,8 +62,63 @@ struct cyttsp4_btn_data {
 	bool input_device_registered;
 	char phys[NAME_MAX];
 	u8 pr_buf[CY_MAX_PRBUF_SIZE];
+	atomic_t keypad_enable;
 };
 
+static int keypad_enable_proc_read(char *page, char **start, off_t off,
+		int count, int *eof, void *data)
+{
+	struct cyttsp4_btn_data *ts = data;
+	return sprintf(page, "%d\n", atomic_read(&ts->keypad_enable));
+}
+
+static int keypad_enable_proc_write(struct file *file, const char __user *buffer,
+		unsigned long count, void *data)
+{
+	struct cyttsp4_btn_data *ts = data;
+	char buf[10];
+	unsigned int val = 0;
+
+	if (count > 10)
+		return count;
+
+	if (copy_from_user(buf, buffer, count)) {
+		printk(KERN_ERR "%s: read proc input error.\n", __func__);
+		return count;
+	}
+
+	sscanf(buf, "%d", &val);
+	val = (val == 0 ? 0 : 1);
+	atomic_set(&ts->keypad_enable, val);
+	if (val) {
+		set_bit(KEY_BACK, ts->input->keybit);
+		set_bit(KEY_MENU, ts->input->keybit);
+		set_bit(KEY_HOMEPAGE, ts->input->keybit);
+	} else {
+		clear_bit(KEY_BACK, ts->input->keybit);
+		clear_bit(KEY_MENU, ts->input->keybit);
+		clear_bit(KEY_HOMEPAGE, ts->input->keybit);
+	}
+	input_sync(ts->input);
+
+	return count;
+}
+
+static int cyttsp4_btn_init_touchpanel_proc(struct cyttsp4_btn_data *bd)
+{
+	struct proc_dir_entry *proc_entry=0;
+
+	struct proc_dir_entry *procdir = proc_mkdir( "touchpanel", NULL );
+
+	proc_entry = create_proc_entry("keypad_enable", 0666, procdir);
+	if (proc_entry) {
+		proc_entry->write_proc = keypad_enable_proc_write;
+		proc_entry->read_proc = keypad_enable_proc_read;
+		proc_entry->data = bd;
+	}
+
+	return 0;
+}
 
 static inline void cyttsp4_btn_key_action(struct cyttsp4_btn_data *bd,
 	int btn_no, int btn_state)
@@ -191,6 +248,10 @@ static int cyttsp4_btn_attention(struct cyttsp4_device *ttsp)
 	struct device *dev = &ttsp->dev;
 	struct cyttsp4_btn_data *bd = dev_get_drvdata(dev);
 	int rc = 0;
+
+	if (!atomic_read(&bd->keypad_enable)) {
+		return 0;
+	}
 
 	dev_vdbg(dev, "%s\n", __func__);
 
@@ -345,6 +406,8 @@ static int cyttsp4_setup_input_device(struct cyttsp4_device *ttsp)
 	for (i = 0; i < bd->si->si_ofs.num_btns; i++)
 		__set_bit(bd->si->btn[i].key_code, bd->input->keybit);
 
+	atomic_set(&bd->keypad_enable, 1);
+
 	rc = input_register_device(bd->input);
 	if (rc < 0)
 		dev_err(dev, "%s: Error, failed register input device r=%d\n",
@@ -436,6 +499,8 @@ static int cyttsp4_btn_probe(struct cyttsp4_device *ttsp)
 		cyttsp4_subscribe_attention(ttsp, CY_ATTEN_STARTUP,
 			cyttsp4_setup_input_attention, 0);
 	}
+
+	cyttsp4_btn_init_touchpanel_proc(bd);
 
 #ifdef CONFIG_HAS_EARLYSUSPEND
 	bd->es.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN + 1;
