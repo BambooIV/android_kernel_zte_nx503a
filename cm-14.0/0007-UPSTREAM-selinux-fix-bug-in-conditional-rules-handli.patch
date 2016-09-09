@@ -1,0 +1,55 @@
+From 41510bef81d1910fde05ecc5ff9c9c074eb9a722 Mon Sep 17 00:00:00 2001
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Mon, 23 Nov 2015 16:07:41 -0500
+Subject: [PATCH 07/10] UPSTREAM: selinux: fix bug in conditional rules
+ handling
+
+(cherry picked from commit commit f3bef67992e8698897b584616535803887c4a73e)
+
+commit fa1aa143ac4a ("selinux: extended permissions for ioctls")
+introduced a bug into the handling of conditional rules, skipping the
+processing entirely when the caller does not provide an extended
+permissions (xperms) structure.  Access checks from userspace using
+/sys/fs/selinux/access do not include such a structure since that
+interface does not presently expose extended permission information.
+As a result, conditional rules were being ignored entirely on userspace
+access requests, producing denials when access was allowed by
+conditional rules in the policy.  Fix the bug by only skipping
+computation of extended permissions in this situation, not the entire
+conditional rules processing.
+
+Change-Id: I6f81765f6cdb9ce72f93c290d7987d93688651a0
+Reported-by: Laurent Bigonville <bigon@debian.org>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+[PM: fixed long lines in patch description]
+Cc: stable@vger.kernel.org # 4.3
+Signed-off-by: Paul Moore <pmoore@redhat.com>
+---
+ security/selinux/ss/conditional.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
+index 6618fb4..ba7dd93 100644
+--- a/security/selinux/ss/conditional.c
++++ b/security/selinux/ss/conditional.c
+@@ -643,7 +643,7 @@ void cond_compute_av(struct avtab *ctab, struct avtab_key *key,
+ {
+ 	struct avtab_node *node;
+ 
+-	if (!ctab || !key || !avd || !xperms)
++	if (!ctab || !key || !avd)
+ 		return;
+ 
+ 	for (node = avtab_search_node(ctab, key); node;
+@@ -662,7 +662,7 @@ void cond_compute_av(struct avtab *ctab, struct avtab_key *key,
+ 		if ((u16)(AVTAB_AUDITALLOW|AVTAB_ENABLED) ==
+ 		    (node->key.specified & (AVTAB_AUDITALLOW|AVTAB_ENABLED)))
+ 			avd->auditallow |= node->datum.u.data;
+-		if ((node->key.specified & AVTAB_ENABLED) &&
++		if (xperms && (node->key.specified & AVTAB_ENABLED) &&
+ 				(node->key.specified & AVTAB_XPERMS))
+ 			services_compute_xperms_drivers(xperms, node);
+ 	}
+-- 
+1.9.1
+

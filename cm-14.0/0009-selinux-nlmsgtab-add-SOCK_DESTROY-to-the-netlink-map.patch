@@ -1,0 +1,36 @@
+From a7771da94170e5267fee21d041e2de1842704d85 Mon Sep 17 00:00:00 2001
+From: Lorenzo Colitti <lorenzo@google.com>
+Date: Thu, 4 Feb 2016 00:52:15 +0900
+Subject: [PATCH 09/10] selinux: nlmsgtab: add SOCK_DESTROY to the netlink
+ mapping tables
+
+Without this, using SOCK_DESTROY in enforcing mode results in:
+
+  SELinux: unrecognized netlink message type=21 for sclass=32
+
+Change-Id: I7862bb0fc83573567243ffa9549a2c7405b5986c
+---
+ security/selinux/nlmsgtab.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
+index b5be060..254ca88 100644
+--- a/security/selinux/nlmsgtab.c
++++ b/security/selinux/nlmsgtab.c
+@@ -79,9 +79,10 @@ static struct nlmsg_perm nlmsg_firewall_perms[] =
+ 
+ static struct nlmsg_perm nlmsg_tcpdiag_perms[] =
+ {
+-	{ TCPDIAG_GETSOCK,	NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
+-	{ DCCPDIAG_GETSOCK,	NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
+-	{ SOCK_DIAG_BY_FAMILY,	NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
++	{ TCPDIAG_GETSOCK,		NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
++	{ DCCPDIAG_GETSOCK,		NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
++	{ SOCK_DIAG_BY_FAMILY,		NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
++	{ SOCK_DESTROY_BACKPORT,	NETLINK_TCPDIAG_SOCKET__NLMSG_WRITE },
+ };
+ 
+ static struct nlmsg_perm nlmsg_xfrm_perms[] =
+-- 
+1.9.1
+
